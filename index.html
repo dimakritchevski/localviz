@@ -472,7 +472,7 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
 @media (prefers-reduced-motion:reduce){.pin.pop{animation:none}}
 
 /* ── Result cards ─────────────────────────────────────────────── */
-.rcard{background:var(--bg);border:1px solid var(--line-2);border-radius:14px;padding:22px}
+.rcard{background:var(--bg);border:1px solid var(--line-2);border-radius:14px;padding:22px;display:flex;flex-direction:column}
 .rcard-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .rcard-logo{
   width:42px;height:42px;flex:none;border-radius:8px;display:grid;place-items:center;
@@ -494,10 +494,10 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
 .rcard-metric .to{font-size:27px;color:var(--win-dk)}
 .rcard-cap{font-size:12.5px;color:var(--muted);line-height:1.55;margin:6px 0 0}
 /* the one-sentence business outcome - the only prose on the card */
-.rcard-story{font-size:14.5px;line-height:1.55;color:var(--body);margin-top:14px}
+.rcard-story{font-size:14.5px;line-height:1.55;color:var(--body);margin:14px 0 20px}
 .rcard-foot{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
-  margin-top:20px;padding-top:14px;border-top:1px solid var(--line);
+  margin-top:auto;padding-top:14px;border-top:1px solid var(--line);
   font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);
 }
 .rcard-foot b{color:var(--ink);font-weight:600}
@@ -1033,9 +1033,9 @@ footer .brand{color:#fff}
           <span class="rcard-logo"><img src="images/logo-capstone.png" alt="Capstone Tiling logo"></span>
           <span class="rcard-name">Capstone Tiling</span>
         </div>
-        <div class="rcard-metric"><span class="from">[9]</span> <span class="from">→</span> <span class="to">[34]</span></div>
+        <div class="rcard-metric"><span class="from">7</span> <span class="from">→</span> <span class="to">36</span></div>
         <p class="rcard-cap">Calls a month from Google</p>
-        <p class="rcard-story">[Was invisible outside his own suburb. Now top three across [8] of the [9] suburbs he services, and he's hired two more guys to keep up.]</p>
+        <p class="rcard-story">Was invisible outside Brighton. Now top three across a huge slice of Melbourne's south east, and the business has grown to a team of seven.</p>
         <div class="rcard-foot"><span>Results in 6 months</span><span class="rcard-chip">Tiling · Melbourne</span></div>
       </div>
 
@@ -1045,9 +1045,9 @@ footer .brand{color:#fff}
           <span class="rcard-logo fill"><img src="images/logo-joshsmith.png" alt="Josh Smith Legal logo"></span>
           <span class="rcard-name">Josh Smith Legal</span>
         </div>
-        <div class="rcard-metric"><span class="from">[1]</span> <span class="from">→</span> <span class="to">[7] of [9]</span></div>
-        <p class="rcard-cap">Suburbs ranked in the top three</p>
-        <p class="rcard-story">[New patients used to come from one suburb. Now the books are full across the whole east side, and they've added a second hygienist.]</p>
+        <div class="rcard-metric"><span class="from">3</span> <span class="from">→</span> <span class="to">66</span></div>
+        <p class="rcard-cap">Calls a month from Google</p>
+        <p class="rcard-story">Used to rely on referrals alone. Since then he's raised his prices twice and added two more lawyers to the team.</p>
         <div class="rcard-foot"><span>Results in 5 months</span><span class="rcard-chip">Legal · Melbourne</span></div>
       </div>
 
@@ -1057,9 +1057,9 @@ footer .brand{color:#fff}
           <span class="rcard-logo"><img src="images/logo-abrecycling.png" alt="AB Recycling logo"></span>
           <span class="rcard-name">AB Recycling</span>
         </div>
-        <div class="rcard-metric"><span class="from">[21]</span> <span class="from">→</span> <span class="to">[64]</span></div>
-        <p class="rcard-cap">Enquiries a month from Google</p>
-        <p class="rcard-story">[Used to rely on referrals alone. Now turns away work in tax season, and has put on a second accountant.]</p>
+        <div class="rcard-metric"><span class="from">1</span> <span class="from">→</span> <span class="to">9</span></div>
+        <p class="rcard-cap">Suburbs ranked in the top three</p>
+        <p class="rcard-story">New customers used to come only from Google Ads. Now Google Maps brings in almost as many, without a cent of ad spend.</p>
         <div class="rcard-foot"><span>Results in 4 months</span><span class="rcard-chip">Recycling · Melbourne</span></div>
       </div>
     </div>
