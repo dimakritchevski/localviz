@@ -1623,11 +1623,11 @@ footer .brand{color:#fff}
        13,10, 6, 2, 5, 9,12,
        15,11, 9, 6, 8,13,14,
        17,16,12,10,13,15,19],
-      [ 5, 4, 3, 2, 3, 4, 6,
-        4, 3, 2, 1, 2, 3, 5,
+      [ 5, 4, 4, 2, 3, 4, 6,
+        4, 3, 2, 1, 2, 4, 5,
         3, 2, 1, 1, 1, 2, 4,
-        4, 3, 2, 1, 2, 3, 5,
-        6, 4, 3, 2, 3, 4, 7] ],
+        4, 3, 2, 1, 2, 4, 5,
+        6, 4, 3, 2, 4, 4, 7] ],
     [ [17,14,11, 9,11,14,18,
        13,10, 7, 5, 8,12,15,
        11, 8, 4, 1, 4, 7,10,
@@ -1665,10 +1665,11 @@ footer .brand{color:#fff}
 
   // deterministic per-dot stagger: greens arrive scattered, not as one
   // synchronised wave, and identically on every reload
-  const rankAt = (from, to, i, t) => {
+  const rankAt = (from, to, i, t, soft) => {
     const off = (((i + 3) * 2654435761 >>> 0) % 997) / 997 * .45;
     const p = Math.max(0, Math.min(1, (t - off) / (1 - off)));
-    const e = 1 - (1 - p) * (1 - p);
+    // soft = slow-burn climb (ease-in) for stories that built gradually
+    const e = soft ? p * p : 1 - (1 - p) * (1 - p);
     return Math.round(from + (to - from) * e);
   };
 
@@ -1676,6 +1677,7 @@ footer .brand{color:#fff}
     const [start, end] = BA_DATA[+el.dataset.ba] || BA_DATA[0];
     const water = WATER[+el.dataset.ba] || WATER[2];
     const months = CUTOFF[+el.dataset.ba] || MONTHS;
+    const soft = +el.dataset.ba === 0;  // Capstone's spread came late, not in a rush
 
     const head = document.createElement('div');
     head.className = 'tl-head';
@@ -1707,7 +1709,7 @@ footer .brand{color:#fff}
       const t = m / MONTHS;
       cells.forEach((c, i) => {
         if (c.water) return;
-        const r = m === 0 ? start[i] : rankAt(start[i], end[i], i, t);
+        const r = m === 0 ? start[i] : rankAt(start[i], end[i], i, t, soft);
         const good = r <= 3, was = c.rank !== null && c.rank <= 3;
         if (c.rank !== null && good === was && (!good || r === c.rank)) { c.rank = r; return; }
         c.rank = r;
