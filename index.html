@@ -1289,24 +1289,32 @@ footer .brand{color:#fff}
       <div class="gtee-form-inner">
         <h3>Request Your Free Audit &amp; Proposal</h3>
         <p class="fsub">Takes 2 minutes. No commitment, no call required.</p>
-        <div class="qdots" aria-hidden="true"><span class="qdot on"></span><span class="qdot"></span></div>
+        <div class="qdots" aria-hidden="true"><span class="qdot on"></span><span class="qdot"></span><span class="qdot"></span></div>
 
         <div class="qstep" data-step="1">
           <label class="qlabel" for="fname">First, a bit about you</label>
           <div class="qfields">
             <input id="fname" name="fname" type="text" placeholder="First name" autocomplete="given-name" required>
             <input id="lname" name="lname" type="text" placeholder="Last name" autocomplete="family-name" required>
-            <input id="bizname" name="bizname" type="text" placeholder="Business name" autocomplete="organization" required>
           </div>
           <button type="button" class="btn btn-cta btn-lg qnext">Next</button>
         </div>
 
         <div class="qstep" data-step="2" hidden>
-          <label class="qlabel" for="website">Your website and contact details</label>
+          <label class="qlabel" for="bizname">Your business</label>
           <div class="qfields">
+            <input id="bizname" name="bizname" type="text" placeholder="Business name" autocomplete="organization" required>
             <input id="website" name="website" type="text" inputmode="url" placeholder="yourbusiness.com.au" autocomplete="url" required>
-            <input id="email" name="email" type="email" placeholder="Email address" autocomplete="email" required>
+          </div>
+          <button type="button" class="btn btn-cta btn-lg qnext">Next</button>
+          <button type="button" class="qback">&larr; Back</button>
+        </div>
+
+        <div class="qstep" data-step="3" hidden>
+          <label class="qlabel" for="mobile">Where should we send it?</label>
+          <div class="qfields">
             <input id="mobile" name="mobile" type="tel" inputmode="tel" placeholder="Mobile number" autocomplete="tel" required>
+            <input id="email" name="email" type="email" placeholder="Email address" autocomplete="email" required>
             <textarea id="notes" name="notes" placeholder="Anything we should know? (optional)"></textarea>
           </div>
           <button type="submit" class="btn btn-cta btn-lg">Get my free audit &amp; proposal</button>
@@ -1720,22 +1728,28 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   const steps = [...form.querySelectorAll('.qstep')];
   const dots  = [...form.querySelectorAll('.qdot')];
   const go = i => {
+    at = i;
     steps.forEach((s, n) => s.hidden = n !== i);
     dots.forEach((d, n) => d.classList.toggle('on', n <= i));
     const focusable = steps[i].querySelector('input');
     if (focusable) focusable.focus({ preventScroll: true });
   };
 
-  form.querySelector('.qnext').addEventListener('click', () => {
-    const missing = [...steps[0].querySelectorAll('input[required]')].find(f => !f.value.trim());
+  let at = 0;
+  form.querySelectorAll('.qnext').forEach(btn => btn.addEventListener('click', () => {
+    const missing = [...steps[at].querySelectorAll('input[required]')].find(f => !f.value.trim());
     if (missing) { missing.focus(); return; }
-    go(1);
-  });
-  form.querySelector('.qback').addEventListener('click', () => go(0));
-
-  steps[0].querySelectorAll('input').forEach(f => f.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); form.querySelector('.qnext').click(); }
+    go(at + 1);
   }));
+  form.querySelectorAll('.qback').forEach(btn => btn.addEventListener('click', () => go(at - 1)));
+
+  steps.forEach(st => {
+    const next = st.querySelector('.qnext');
+    if (!next) return;
+    st.querySelectorAll('input').forEach(f => f.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); next.click(); }
+    }));
+  });
 })();
 
 /* ── Founder stats: count up when scrolled into view ──────────────
