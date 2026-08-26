@@ -675,6 +675,20 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
 .gtee-form textarea{resize:vertical;min-height:64px}
 .gtee-form input::placeholder,.gtee-form textarea::placeholder{color:var(--muted)}
 .gtee-form input:focus,.gtee-form textarea:focus{outline:none;border-color:#DB5F05;box-shadow:0 0 0 3px rgba(219,95,5,.14),0 2px 10px -2px rgba(219,95,5,.25)}
+/* required marker on every question after the first */
+.qstep:not([data-step="1"]) .qlabel::after{content:" *";color:#F0801F}
+/* inline validation line, shown when Next is clicked on an empty field */
+.qerr{display:none;font-size:12.5px;color:#E85560;margin-top:8px}
+.qerr.show{display:block}
+/* phone number with a country-code dropdown */
+.phone-row{display:flex;gap:8px}
+.phone-row select{
+  flex:none;width:106px;font-family:inherit;font-size:15px;color:var(--ink);
+  background:var(--bg);border:1px solid var(--line-2);border-radius:8px;padding:13px 8px;
+  transition:border-color .15s;cursor:pointer;
+}
+.phone-row select:focus{outline:none;border-color:#DB5F05;box-shadow:0 0 0 3px rgba(219,95,5,.14),0 2px 10px -2px rgba(219,95,5,.25)}
+.phone-row input{flex:1;min-width:0}
 .qhint{font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:10px}
 .qstep .btn{margin-top:18px;width:100%}
 .qback{
@@ -1294,12 +1308,14 @@ footer .brand{color:#fff}
         <div class="qstep" data-step="1">
           <label class="qlabel" for="fname">What's your first name?</label>
           <input id="fname" name="fname" type="text" placeholder="First name" autocomplete="given-name" required>
+          <p class="qerr">Please complete this required field.</p>
           <button type="button" class="btn btn-cta btn-lg qnext">Next</button>
         </div>
 
         <div class="qstep" data-step="2" hidden>
           <label class="qlabel" for="lname">What's your last name?</label>
           <input id="lname" name="lname" type="text" placeholder="Last name" autocomplete="family-name" required>
+          <p class="qerr">Please complete this required field.</p>
           <button type="button" class="btn btn-cta btn-lg qnext">Next</button>
           <button type="button" class="qback">&larr; Back</button>
         </div>
@@ -1307,6 +1323,7 @@ footer .brand{color:#fff}
         <div class="qstep" data-step="3" hidden>
           <label class="qlabel" for="bizname">What's your business name?</label>
           <input id="bizname" name="bizname" type="text" placeholder="Business name" autocomplete="organization" required>
+          <p class="qerr">Please complete this required field.</p>
           <button type="button" class="btn btn-cta btn-lg qnext">Next</button>
           <button type="button" class="qback">&larr; Back</button>
         </div>
@@ -1314,13 +1331,25 @@ footer .brand{color:#fff}
         <div class="qstep" data-step="4" hidden>
           <label class="qlabel" for="website">What's your website URL?</label>
           <input id="website" name="website" type="text" inputmode="url" placeholder="yourbusiness.com.au" autocomplete="url" required>
+          <p class="qerr">Please complete this required field.</p>
           <button type="button" class="btn btn-cta btn-lg qnext">Next</button>
           <button type="button" class="qback">&larr; Back</button>
         </div>
 
         <div class="qstep" data-step="5" hidden>
           <label class="qlabel" for="mobile">What's your phone number?</label>
-          <input id="mobile" name="mobile" type="tel" inputmode="tel" placeholder="Mobile number" autocomplete="tel" required>
+          <div class="phone-row">
+            <select id="dial" name="dial_code" aria-label="Country code">
+              <option value="+61" selected>AU +61</option>
+              <option value="+64">NZ +64</option>
+              <option value="+44">UK +44</option>
+              <option value="+1">US +1</option>
+              <option value="+1">CA +1</option>
+              <option value="+353">IE +353</option>
+            </select>
+            <input id="mobile" name="mobile" type="tel" inputmode="tel" placeholder="Mobile number" autocomplete="tel" required>
+          </div>
+          <p class="qerr">Please complete this required field.</p>
           <button type="button" class="btn btn-cta btn-lg qnext">Next</button>
           <button type="button" class="qback">&larr; Back</button>
         </div>
@@ -1328,6 +1357,7 @@ footer .brand{color:#fff}
         <div class="qstep" data-step="6" hidden>
           <label class="qlabel" for="email">What's your email address?</label>
           <input id="email" name="email" type="email" placeholder="Email address" autocomplete="email" required>
+          <p class="qerr">Please complete this required field.</p>
           <button type="submit" class="btn btn-cta btn-lg">Get my free audit &amp; proposal</button>
           <button type="button" class="qback">&larr; Back</button>
         </div>
@@ -1747,19 +1777,28 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   };
 
   let at = 0;
+  const flag = step => {
+    const missing = [...step.querySelectorAll('input[required]')].find(f => !f.value.trim());
+    const err = step.querySelector('.qerr');
+    if (missing) { if (err) err.classList.add('show'); missing.focus(); return true; }
+    if (err) err.classList.remove('show');
+    return false;
+  };
   form.querySelectorAll('.qnext').forEach(btn => btn.addEventListener('click', () => {
-    const missing = [...steps[at].querySelectorAll('input[required]')].find(f => !f.value.trim());
-    if (missing) { missing.focus(); return; }
+    if (flag(steps[at])) return;
     go(at + 1);
   }));
   form.querySelectorAll('.qback').forEach(btn => btn.addEventListener('click', () => go(at - 1)));
+  form.addEventListener('submit', e => { if (flag(steps[at])) e.preventDefault(); });
 
   steps.forEach(st => {
     const next = st.querySelector('.qnext');
-    if (!next) return;
-    st.querySelectorAll('input').forEach(f => f.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); next.click(); }
-    }));
+    st.querySelectorAll('input').forEach(f => {
+      f.addEventListener('input', () => { const e2 = st.querySelector('.qerr'); if (e2) e2.classList.remove('show'); });
+      if (next) f.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); next.click(); }
+      });
+    });
   });
 })();
 
