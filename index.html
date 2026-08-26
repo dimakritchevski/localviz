@@ -85,6 +85,9 @@ header .btn-cta:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
   white-space:nowrap;cursor:pointer;border:0;
   transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s,background .15s,border-color .15s;
 }
+/* every button carries a right arrow that drifts across on hover */
+.btn::after{content:"92";display:inline-block;transition:transform .5s cubic-bezier(.22,.61,.36,1)}
+.btn:hover::after{transform:translateX(4px)}
 .btn-cta{
   background:linear-gradient(175deg,#F0801F,#DB5F05 58%,#B84A02);
   color:var(--cta-ink);
@@ -102,6 +105,7 @@ header .btn-cta:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
 @media (prefers-reduced-motion:reduce){
   .btn{transition:background .15s,border-color .15s}
   .btn-cta:hover,.btn-ghost:hover{transform:none}
+  .btn::after{transition:none}
 }
 
 /* ── Section furniture ────────────────────────────────────────── */
