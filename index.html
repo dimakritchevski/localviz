@@ -556,6 +556,7 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
 .how-flow{position:relative;gap:30px}
 .how-flow .flow-line{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
 .how-flow .step-card{z-index:1}
+.how-nav{display:none}
 .how-flow > div:nth-of-type(4){grid-column:3;grid-row:2}
 .how-flow > div:nth-of-type(5){grid-column:2;grid-row:2}
 .how-flow > div:nth-of-type(6){grid-column:1;grid-row:2}
@@ -874,6 +875,13 @@ footer .brand{color:#fff}
   .g3,.g4,.get-roles,.creds{grid-template-columns:1fr}
   .how-flow.carousel .step-card{display:none}
   .how-flow.carousel .step-card.active{display:block;animation:cardin .4s ease}
+  .how-flow.carousel .how-nav{display:flex;justify-content:center;gap:12px}
+  .how-arrow{
+    width:46px;height:46px;border-radius:50%;border:1px solid var(--line-2);
+    background:var(--bg);color:var(--ink);font-size:19px;cursor:pointer;
+    display:grid;place-items:center;
+  }
+  .how-arrow:active{background:var(--bg-alt)}
   .lp-row.you .lp-biz b{font-size:13px}
   .minicta{flex-direction:column;align-items:flex-start;gap:20px;padding:22px}
   .minicta .btn{width:100%}
@@ -1617,22 +1625,40 @@ footer .brand{color:#fff}
     }
   };
 
-  // mobile: one card on stage at a time - it fades in, its underline
-  // wipes across, then the next step takes the stage
-  const stepMob = () => {
+  // mobile: one card on stage at a time. Autoplays slowly; the first
+  // tap on an arrow hands control to the reader and autoplay stops.
+  const MOB_DWELL = 7000;
+  let manual = false;
+  const show = idx => {
+    i = (idx + cards.length) % cards.length;
     cards.forEach(c => c.classList.remove('lit', 'active'));
-    const c = cards[i % cards.length];
+    const c = cards[i];
     c.classList.add('active');
     requestAnimationFrame(() => requestAnimationFrame(() => c.classList.add('lit')));
-    i += 1;
-    timer = setTimeout(stepMob, WIPE + GAP);
   };
+  const stepMob = () => {
+    show(i);
+    timer = setTimeout(() => { i += 1; stepMob(); }, MOB_DWELL);
+  };
+  const nav = document.createElement('div');
+  nav.className = 'how-nav';
+  [[-1, 'Previous step', '←'], [1, 'Next step', '→']].forEach(([dir, label, glyph]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'how-arrow';
+    b.setAttribute('aria-label', label);
+    b.textContent = glyph;
+    b.addEventListener('click', () => { manual = true; clearTimeout(timer); show(i + dir); });
+    nav.appendChild(b);
+  });
+  grid.appendChild(nav);
 
   const start = () => {
     clearTimeout(timer);
     cards.forEach(c => c.classList.remove('lit', 'active'));
     grid.classList.toggle('carousel', mob.matches);
     i = 0;
+    manual = false;
     (mob.matches ? stepMob : stepDesk)();
   };
   mob.addEventListener('change', () => { if (started) start(); });
@@ -1641,7 +1667,7 @@ footer .brand{color:#fff}
     o.disconnect();
     started = true;
     timer = setTimeout(start, 500);
-  }, { threshold: .3 }).observe(grid);
+  }, { threshold: .15 }).observe(grid);
 })();
 
 /* ── How It Works: dotted line threading the six steps ───────── */
