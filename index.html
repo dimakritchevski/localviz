@@ -1663,8 +1663,8 @@ footer .brand{color:#fff}
   const HOME = 17;    // centre of the 7x5 grid
   const MONTHS = 6;   // full programme scale the easing runs on
   const CUTOFF = [6, 5, 4];  // where each card's story stops (per data-ba)
-  const TICK = 1300;  // ms per month
-  const HOLD = 3400;  // pause on the finished grid before looping
+  const TICK = 2000;  // ms per month
+  const HOLD = 4200;  // pause on the finished grids before looping
 
   // deterministic per-dot stagger: greens arrive scattered, not as one
   // synchronised wave, and identically on every reload
@@ -1672,11 +1672,12 @@ footer .brand{color:#fff}
     const off = (((i + 3) * 2654435761 >>> 0) % 997) / 997 * .45;
     const p = Math.max(0, Math.min(1, (t - off) / (1 - off)));
     // soft = slow-burn climb (ease-in) for stories that built gradually
-    const e = soft ? p * p : 1 - (1 - p) * (1 - p);
+    const e = soft ? p : 1 - (1 - p) * (1 - p);
     return Math.round(from + (to - from) * e);
   };
 
-  document.querySelectorAll('.ba').forEach((el, ci) => {
+  const players = [];
+  document.querySelectorAll('.ba').forEach(el => {
     const [start, end] = BA_DATA[+el.dataset.ba] || BA_DATA[0];
     const water = WATER[+el.dataset.ba] || WATER[2];
     const months = CUTOFF[+el.dataset.ba] || MONTHS;
@@ -1726,20 +1727,25 @@ footer .brand{color:#fff}
     if (still) { paint(months, false); return; }
 
     paint(0, false);
-    let m = 0, timer = null;
-    const step = () => {
-      m += 1;
-      paint(m, true);
-      timer = m >= months
-        ? setTimeout(() => { m = 0; paint(0, false); timer = setTimeout(step, TICK); }, HOLD)
-        : setTimeout(step, TICK);
-    };
-    new IntersectionObserver((es, o) => {
-      if (!es[0].isIntersecting) return;
-      o.disconnect();
-      timer = setTimeout(step, 900 + ci * 450);
-    }, { threshold: .35 }).observe(el);
+    players.push({ paint, months });
   });
+
+  // one conductor for all three cards: months tick in lockstep, and a
+  // finished card holds its last month until the whole cycle resets
+  if (still || !players.length) return;
+  let m = 0;
+  const step = () => {
+    m += 1;
+    players.forEach(p => { if (m <= p.months) p.paint(m, true); });
+    m >= MONTHS
+      ? setTimeout(() => { m = 0; players.forEach(p => p.paint(0, false)); setTimeout(step, TICK); }, HOLD)
+      : setTimeout(step, TICK);
+  };
+  new IntersectionObserver((es, o) => {
+    if (!es[0].isIntersecting) return;
+    o.disconnect();
+    setTimeout(step, 900);
+  }, { threshold: .3 }).observe(document.querySelector('.ba'));
 })();
 
 /* ── In-page links scroll explicitly ──────────────────────────────
