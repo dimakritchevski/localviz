@@ -429,11 +429,10 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
    margins swallow the card's 22px padding, top radius matches it */
 .ba{
   position:relative;border-bottom:1px solid var(--line-2);border-radius:13px 13px 0 0;overflow:hidden;
-  margin:-22px -22px 16px;background:#FBFCFD;cursor:ew-resize;
-  user-select:none;-webkit-user-select:none;touch-action:none;
+  margin:-22px -22px 16px;background:#FBFCFD;
 }
 .ba .mapgrid{
-  padding:10px;gap:4px;
+  padding:38px 10px 12px;gap:4px;
   background-color:#FBFCFD;background-size:cover;background-position:center;
 }
 /* each slider carries its business's real service area (OSM, washed out) */
@@ -443,40 +442,25 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
 /* outside the top three: a quiet dot instead of a coloured pin */
 .dot-blank{width:7px;height:7px;border-radius:50%;background:rgba(11,21,36,.22);box-shadow:0 0 0 2px rgba(255,255,255,.7)}
 .ba .pin{font-size:9.5px}
-/* explicit stack: after layer at the bottom, before layer above it
-   (its pins carry z-index:1, so the layer itself must outrank them),
-   then labels, then the handle */
-.ba-after{position:relative;z-index:0}
-.ba-before{position:absolute;inset:0;z-index:2}
-.ba-before .mapgrid{width:100%;height:100%}
-.ba-line{
-  position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;z-index:4;
-  background:#fff;box-shadow:0 0 0 1px rgba(11,21,36,.18);pointer-events:none;
+/* month badge and progress track floating over the map */
+.tl-head{
+  position:absolute;top:9px;left:0;right:0;z-index:3;pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
 }
-.ba-grip{
-  position:absolute;top:50%;transform:translate(-50%,-50%);z-index:4;
-  width:30px;height:30px;border-radius:50%;pointer-events:none;
-  background:#fff;border:1px solid var(--line-2);
-  box-shadow:0 2px 6px rgba(11,21,36,.22);
-  display:grid;place-items:center;
-}
-.ba-grip svg{width:14px;height:14px;stroke:var(--ink);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
-/* solid white pills with a status dot - pastel chips vanished into
-   the pin colours around them */
-.ba-tag{
-  position:absolute;top:8px;z-index:3;pointer-events:none;
-  display:inline-flex;align-items:center;gap:6px;
-  font-family:'JetBrains Mono',monospace;
+.tl-badge{
+  display:inline-flex;font-family:'JetBrains Mono',monospace;
   font-size:9.5px;font-weight:600;letter-spacing:.07em;
-  background:#fff;color:var(--ink);border-radius:999px;padding:5px 10px;
+  background:#fff;color:var(--ink);border-radius:999px;padding:5px 11px;
   box-shadow:0 1px 4px rgba(11,21,36,.28);
-  transition:opacity .25s;
+  font-variant-numeric:tabular-nums;
 }
-.ba-tag::before{content:"";width:7px;height:7px;border-radius:50%;flex:none}
-.ba-tag.before{left:8px}
-.ba-tag.before::before{background:var(--lose)}
-.ba-tag.after{right:8px}
-.ba-tag.after::before{background:var(--win)}
+.tl-track{display:flex;gap:3px}
+.tl-track i{width:15px;height:3px;border-radius:2px;background:rgba(11,21,36,.14);transition:background .3s}
+.tl-track i.on{background:var(--win)}
+/* newly won positions pop in */
+.pin.pop{animation:pinpop .45s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pinpop{from{transform:translateY(-8%) scale(.2);opacity:0}to{transform:translateY(-8%) scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.pin.pop{animation:none}}
 
 /* ── Result cards ─────────────────────────────────────────────── */
 .rcard{background:var(--bg);border:1px solid var(--line-2);border-radius:14px;padding:22px}
@@ -1025,7 +1009,7 @@ footer .brand{color:#fff}
          below is legal, so these shouldn't be. -->
     <div class="g3">
       <div class="rcard tbd">
-        <div class="ba" data-ba="0" aria-label="Before and after Google Maps rankings, drag to compare"></div>
+        <div class="ba" data-ba="0" aria-label="Google Maps rankings improving month by month"></div>
         <div class="rcard-head">
           <span class="rcard-logo"><img src="images/logo-capstone.png" alt="Capstone Tiling logo"></span>
           <span class="rcard-name">Capstone Tiling</span>
@@ -1037,7 +1021,7 @@ footer .brand{color:#fff}
       </div>
 
       <div class="rcard tbd">
-        <div class="ba" data-ba="1" aria-label="Before and after Google Maps rankings, drag to compare"></div>
+        <div class="ba" data-ba="1" aria-label="Google Maps rankings improving month by month"></div>
         <div class="rcard-head">
           <span class="rcard-logo"><img src="images/logo-aditum.png" alt="Aditum Lawyers logo"></span>
           <span class="rcard-name">Aditum Lawyers</span>
@@ -1049,7 +1033,7 @@ footer .brand{color:#fff}
       </div>
 
       <div class="rcard tbd">
-        <div class="ba" data-ba="2" aria-label="Before and after Google Maps rankings, drag to compare"></div>
+        <div class="ba" data-ba="2" aria-label="Google Maps rankings improving month by month"></div>
         <div class="rcard-head">
           <span class="rcard-logo"><img src="images/logo-abrecycling.png" alt="AB Recycling logo"></span>
           <span class="rcard-name">AB Recycling</span>
@@ -1614,17 +1598,15 @@ footer .brand{color:#fff}
   addEventListener('load', draw);
 })();
 
-/* ── Before / after sliders in the result cards ───────────────────
-   MOCKUP DATA - random example ranks, replace with each client's real
-   before/after grids when the case studies land. The map background
-   is cloned from the hero card so the two always match.            */
+/* ── Month-by-month timelines in the result cards ─────────────────
+   MOCKUP DATA - start and month-6 ranks, replace with each client's
+   real grids when the case studies land. Autoplays like the hero:
+   each month a few more dots flip to green pins, month 6 holds,
+   then the story loops. */
 (() => {
-  const heroMap = document.querySelector('.lp-map .mapbg');
-  if (!heroMap) return;
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const bas = [];
 
-  // [before, after] - 35 ranks each, 7 across, 5 down
+  // [start, month 6] - 35 ranks each, 7 across, 5 down
   const BA_DATA = [
     [ [19,16,13,10,12,15,17,
        14,12, 8, 7,10,13,16,
@@ -1658,122 +1640,80 @@ footer .brand{color:#fff}
         6, 5, 3, 2, 3, 4, 7] ],
   ];
 
-  const HOME = 17; // centre of the 7x5 grid
+  const HOME = 17;    // centre of the 7x5 grid
+  const MONTHS = 6;
+  const TICK = 1300;  // ms per month
+  const HOLD = 3400;  // pause on the finished grid before looping
 
-  const makeGrid = ranks => {
-    const g = document.createElement('div');
-    g.className = 'mapgrid';
-    ranks.forEach((r, i) => {
-      const node = document.createElement('div');
-      if (r <= 3) {
-        node.className = 'node n-good' + (i === HOME ? ' is-home' : '');
-        const pin = document.createElement('div');
-        pin.className = 'pin';
-        const num = document.createElement('span');
-        num.textContent = r;
-        pin.appendChild(num);
-        node.appendChild(pin);
-      } else {
-        node.className = 'node' + (i === HOME ? ' is-home' : '');
-        const dot = document.createElement('i');
-        dot.className = 'dot-blank';
-        node.appendChild(dot);
-      }
-      g.appendChild(node);
-    });
-    return g;
+  // deterministic per-dot stagger: greens arrive scattered, not as one
+  // synchronised wave, and identically on every reload
+  const rankAt = (from, to, i, t) => {
+    const off = (((i + 3) * 2654435761 >>> 0) % 997) / 997 * .45;
+    const p = Math.max(0, Math.min(1, (t - off) / (1 - off)));
+    const e = 1 - (1 - p) * (1 - p);
+    return Math.round(from + (to - from) * e);
   };
 
-  document.querySelectorAll('.ba').forEach(el => {
-    const [before, after] = BA_DATA[+el.dataset.ba] || BA_DATA[0];
+  document.querySelectorAll('.ba').forEach((el, ci) => {
+    const [start, end] = BA_DATA[+el.dataset.ba] || BA_DATA[0];
 
-    const base = document.createElement('div');
-    base.className = 'ba-after';
-    base.appendChild(makeGrid(after));
+    const head = document.createElement('div');
+    head.className = 'tl-head';
+    const badge = document.createElement('span');
+    badge.className = 'tl-badge';
+    const track = document.createElement('span');
+    track.className = 'tl-track';
+    const segs = [];
+    for (let k = 0; k < MONTHS; k++) {
+      const s = document.createElement('i');
+      track.appendChild(s);
+      segs.push(s);
+    }
+    head.append(badge, track);
 
-    const top = document.createElement('div');
-    top.className = 'ba-before';
-    top.appendChild(makeGrid(before));
-
-    const line = document.createElement('div');
-    line.className = 'ba-line';
-    const grip = document.createElement('div');
-    grip.className = 'ba-grip';
-    grip.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 6l-5 6 5 6M15 6l5 6-5 6"/></svg>';
-
-    const tagB = document.createElement('span');
-    tagB.className = 'ba-tag before'; tagB.textContent = 'BEFORE';
-    const tagA = document.createElement('span');
-    tagA.className = 'ba-tag after'; tagA.textContent = 'AFTER';
-
-    el.append(base, top, line, grip, tagB, tagA);
-
-    const set = p => {
-      p = Math.max(0, Math.min(100, p));
-      top.style.clipPath = 'inset(0 ' + (100 - p) + '% 0 0)';
-      line.style.left = p + '%';
-      grip.style.left = p + '%';
-      // only the label for what's actually visible
-      tagB.style.opacity = p > 12 ? 1 : 0;
-      tagA.style.opacity = p < 88 ? 1 : 0;
-    };
-
-    // starts fully "before"; the scroll drive below sweeps it green.
-    // reduced motion gets a static half-half split instead.
-    const inst = { el, set, user: false, pos: still ? 50 : 100 };
-    bas.push(inst);
-    set(inst.pos);
-
-    el.addEventListener('pointerdown', e => {
-      inst.user = true;              // hand over control once they touch it
-      el.setPointerCapture(e.pointerId);
-      const move = ev => {
-        const r = el.getBoundingClientRect();
-        set((ev.clientX - r.left) / r.width * 100);
-      };
-      move(e);
-      el.addEventListener('pointermove', move);
-      el.addEventListener('pointerup', () => el.removeEventListener('pointermove', move), { once: true });
+    const g = document.createElement('div');
+    g.className = 'mapgrid';
+    const cells = start.map((r, i) => {
+      const node = document.createElement('div');
+      node.className = 'node' + (i === HOME ? ' is-home' : '');
+      g.appendChild(node);
+      return { node, rank: null };
     });
-  });
+    el.append(g, head);
 
-  /* scroll-linked reveal: scroll position sets the TARGET, and the
-     handle chases it at a capped speed - so a violent scroll can't
-     snap the wipe; it keeps gliding after the scroll stops. Dragging
-     a card takes it out of the drive. */
-  if (!still) {
-    const MAX_SPEED = 80;                 // % of the card per second
-    let raf = null, last = 0;
-    const tick = now => {
-      raf = null;
-      const dt = Math.min((now - last) / 1000, .05);
-      last = now;
-      const vh = innerHeight;
-      let active = false;
-      bas.forEach(b => {
-        if (b.user) return;
-        const r = b.el.getBoundingClientRect();
-        if (r.bottom < 0 || r.top > vh) return;
-        const start = vh * .88, end = vh * .38;
-        const t = Math.max(0, Math.min(1, (start - r.top) / (start - end)));
-        const target = 100 - t * 100;
-        const diff = target - b.pos;
-        if (Math.abs(diff) > .1) {
-          const step = MAX_SPEED * dt;
-          b.pos += Math.abs(diff) <= step ? diff : Math.sign(diff) * step;
-          b.set(b.pos);
-          active = true;
-        }
+    const paint = (m, pop) => {
+      badge.textContent = m === 0 ? 'START' : 'MONTH ' + m;
+      segs.forEach((s, k) => s.classList.toggle('on', k < m));
+      const t = m / MONTHS;
+      cells.forEach((c, i) => {
+        const r = m === 0 ? start[i] : m === MONTHS ? end[i] : rankAt(start[i], end[i], i, t);
+        const good = r <= 3, was = c.rank !== null && c.rank <= 3;
+        if (c.rank !== null && good === was && (!good || r === c.rank)) { c.rank = r; return; }
+        c.rank = r;
+        c.node.className = 'node' + (good ? ' n-good' : '') + (i === HOME ? ' is-home' : '');
+        c.node.innerHTML = good
+          ? '<div class="pin' + (pop && !was ? ' pop' : '') + '"><span>' + r + '</span></div>'
+          : '<i class="dot-blank"></i>';
       });
-      if (active) raf = requestAnimationFrame(tick);
     };
-    const kick = () => {
-      if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
+
+    if (still) { paint(MONTHS, false); return; }
+
+    paint(0, false);
+    let m = 0, timer = null;
+    const step = () => {
+      m += 1;
+      paint(m, true);
+      timer = m >= MONTHS
+        ? setTimeout(() => { m = 0; paint(0, false); timer = setTimeout(step, TICK); }, HOLD)
+        : setTimeout(step, TICK);
     };
-    addEventListener('scroll', kick, { passive: true });
-    addEventListener('resize', kick, { passive: true });
-    kick();
-  }
+    new IntersectionObserver((es, o) => {
+      if (!es[0].isIntersecting) return;
+      o.disconnect();
+      timer = setTimeout(step, 900 + ci * 450);
+    }, { threshold: .35 }).observe(el);
+  });
 })();
 
 /* ── In-page links scroll explicitly ──────────────────────────────
