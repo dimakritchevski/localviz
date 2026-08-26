@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LocalViz | Google Maps optimisation for local service businesses</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   PLAIN VERSION - one white page, one accent, flat borders.
+   Colour is reserved for data: red/amber/green mean rank quality
+   and nothing else. Orange means "click here" and nothing else.
+   ═══════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#0B1524;          /* headings */
+  --body:#46556B;         /* paragraphs */
+  --muted:#71809A;        /* captions, fine print */
+  --line:#E4E8EE;
+  --line-2:#CBD3DE;
+  --bg:#FFFFFF;
+  --bg-alt:#F7F9FB;       /* alternating band */
+  --cta:#D95C05; --cta-hover:#D05502; --cta-ink:#FFFFFF;
+  /* navy is the brand accent and the dark-surface colour, which frees
+     orange to mean only "click here" and green/amber/red to mean only
+     rank quality - the colour system from the original design */
+  --navy:#233566;
+  --accent:#3A4CC0;
+  --win:#22B368; --warn:#F0B428; --lose:#E85560;          /* pin fills */
+  --win-dk:#177A48; --warn-dk:#8A6410; --lose-dk:#C02F3A; /* text-safe */
+  /* one soft shadow for every top-level box - a touch richer than the
+     plain variant. Inner boxes (sliders, stats, roles) stay flat. */
+  --shadow:0 1px 2px rgba(11,21,36,.05),0 14px 34px -14px rgba(11,21,36,.14);
+  --maxw:1140px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+/* keep scrolled-to targets clear of the sticky header */
+[id]{scroll-margin-top:80px}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.5;
+  background:var(--bg);color:var(--ink);overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+/* the rank scale as a rule across the top - red, amber, green, in the
+   same order the map grid moves through. Hard stops, no blend. */
+.top-rule{
+  height:4px;
+  background:linear-gradient(90deg,
+    var(--lose) 0 26%, var(--warn) 26% 56%, var(--win) 56% 100%);
+}
+
+/* ── Header ───────────────────────────────────────────────────── */
+header{
+  position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--line);
+  box-shadow:0 2px 10px rgba(11,21,36,.07);
+}
+/* no orange glow in the header - the glow is for in-page CTAs */
+header .btn-cta{box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+header .btn-cta:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+/* the mark stays - it's the one place the rank scale appears as brand */
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:19px;letter-spacing:-.02em;line-height:1;white-space:nowrap}
+.brand svg{width:23px;height:23px;flex:none;display:block}
+.brand .b1{fill:var(--lose)}
+.brand .b2{fill:var(--warn)}
+.brand .b3{fill:var(--win)}
+.nav-links{display:flex;align-items:center;gap:8px}
+.nav-links a{
+  font-size:14.5px;font-weight:500;color:var(--body);
+  padding:8px 14px;border-radius:8px;transition:background .15s,color .15s;
+}
+.nav-links a:hover{background:var(--bg-alt);color:var(--ink)}
+
+/* ── Buttons - the original design's confident CTAs ───────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-weight:600;font-size:15px;border-radius:10px;padding:12px 20px;
+  white-space:nowrap;cursor:pointer;border:0;
+  transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s,background .15s,border-color .15s;
+}
+.btn-cta{
+  background:linear-gradient(175deg,#F0801F,#DB5F05 58%,#B84A02);
+  color:var(--cta-ink);
+  /* warm-toned, not grey - a neutral shadow reads as dirt on orange */
+  text-shadow:0 1px 2px rgba(105,38,0,.6);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4);
+}
+.btn-cta:hover{
+  transform:translateY(-2px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4);
+}
+.btn-ghost{background:var(--bg);color:var(--ink);border:1px solid var(--line-2)}
+.btn-ghost:hover{border-color:var(--ink);transform:translateY(-2px)}
+.btn-lg{padding:15px 26px;font-size:16px;border-radius:14px}
+@media (prefers-reduced-motion:reduce){
+  .btn{transition:background .15s,border-color .15s}
+  .btn-cta:hover,.btn-ghost:hover{transform:none}
+}
+
+/* ── Section furniture ────────────────────────────────────────── */
+section{padding:76px 0}
+.band-alt{background:var(--bg-alt);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+/* light-mode grid texture for grey bands that want the map motif */
+.band-grid{
+  background-image:
+    linear-gradient(rgba(11,21,36,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(11,21,36,.04) 1px,transparent 1px);
+  background-size:44px 44px;
+}
+
+/* ── Dark band (founder) - same ink as the mini CTA ───────────── */
+/* faint map-grid texture on every large dark surface - the street
+   grid behind the pins, echoed at an opacity that's felt, not seen */
+.band-dark,.gtee-card,.cta-card,.minicta,footer{
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:44px 44px;
+}
+.band-dark{background-color:var(--navy)}
+.band-dark h2{color:#fff}
+.band-dark .eyebrow{color:#9BA7CC}
+.band-dark .sec-head p{color:#C3CCE7}
+.founder-stats{margin-top:32px}
+.band-dark .stat{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14)}
+.band-dark .stat b{color:#fff}
+.band-dark .stat span{color:#9BA7CC}
+/* bigger numerals, and tabular digits so the count-up doesn't jitter */
+.founder-stats .stat b{font-size:27px;font-variant-numeric:tabular-nums}
+/* same orange wipe as the step cards */
+.founder-stats .stat{position:relative;overflow:hidden}
+.founder-stats .stat::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:linear-gradient(90deg,#B84A02,#DB5F05 50%,#F0801F);
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .45s cubic-bezier(.4,0,.2,1);
+}
+.founder-stats .stat:hover::after{transform:scaleX(1)}
+@media (prefers-reduced-motion:reduce){.founder-stats .stat::after{transition:none}}
+.band-dark .founder-photo{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.22)}
+.band-dark .founder-photo .ph{color:#9BA7CC}
+.band-dark .founder-cap{background:rgba(255,255,255,.04);border-top-color:rgba(255,255,255,.12)}
+.band-dark .founder-cap b{color:#fff}
+.band-dark .founder-cap span{color:#9BA7CC}
+/* navy accent - the one non-CTA colour moment on light bands.
+   Mono, because labels on this site read as instrument markings */
+.eyebrow{
+  display:inline-block;font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:14px;
+}
+h2{font-size:clamp(28px,3.2vw,38px);line-height:1.15;letter-spacing:-.022em;font-weight:700;text-wrap:balance}
+h2 em{font-style:normal;color:inherit}
+/* the serif italic is a hero-only signature - one word, one place */
+h1 em{
+  font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;
+  font-size:1.06em;color:#F0801F;
+}
+.sec-head{max-width:680px;margin-bottom:44px}
+.sec-head p{font-size:16.5px;color:var(--body);line-height:1.6;margin-top:16px}
+.sec-head.centred{margin-left:auto;margin-right:auto;text-align:center}
+
+/* ── Hero ─────────────────────────────────────────────────────── */
+.hero{padding:72px 0 68px}
+/* dark hero: white header above, navy banner below - the combination
+   from the original design. The white journey card pops off it. */
+.band-dark h1{color:#fff}
+.band-dark .lede{color:#C3CCE7}
+.band-dark .ticks li{color:#fff}
+.band-dark .tick{background:rgba(51,206,117,.16)}
+.band-dark .tick svg{stroke:#3FCB80}
+.hero .microcopy{color:#9BA7CC}
+.hero .microcopy strong{color:#fff}
+.band-dark .btn-ghost{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.25)}
+.band-dark .btn-ghost:hover{border-color:#fff}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;margin-bottom:20px;
+  font-size:12.5px;font-weight:600;letter-spacing:.02em;color:var(--body);
+  background:var(--bg);border:1px solid var(--line-2);border-radius:999px;padding:8px 16px;
+}
+.band-dark .hero-badge{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.18);color:#C3CCE7}
+.hero-badge i{width:7px;height:7px;border-radius:50%;background:var(--win-dk);flex:none}
+.band-dark .hero-badge i{background:#3FCB80}
+
+/* ── Trust bar - the founder's numbers, skimmable under the hero ──
+   A step darker than the hero navy, so it reads as the banner's
+   baseboard rather than a separate section. */
+/* a slow marquee at every size - roughly three stats visible on
+   desktop, two on mobile, always drifting */
+.trustbar{background:#182644;padding:22px 0}
+.trustbar-viewport{
+  max-width:var(--maxw);margin:0 auto;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+}
+.tb-track{display:flex;align-items:center;width:max-content;animation:tbmq 34s linear infinite}
+.trustbar:hover .tb-track{animation-play-state:paused}
+.tb-item{display:flex;align-items:baseline;gap:10px;white-space:nowrap;padding:0 64px;position:relative}
+/* hairline dividers between items, not around them */
+.tb-item + .tb-item::before{
+  content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:1px;height:24px;background:rgba(255,255,255,.14);
+}
+.tb-item b{font-size:18px;font-weight:700;letter-spacing:.01em;text-transform:uppercase;color:#fff;font-variant-numeric:tabular-nums}
+.tb-item span{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;
+  color:#8B98BF;
+}
+@media (max-width:820px){
+  .tb-track{animation-duration:24s}
+  .tb-item{padding:0 18px}
+  .tb-item b{font-size:16.5px}
+  .tb-item span{font-size:10px}
+}
+@keyframes tbmq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){
+  .tb-track{animation:none}
+  .trustbar-viewport{overflow-x:auto}
+}
+.hero-inner{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center}
+h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-weight:700;margin-bottom:20px}
+.lede{font-size:18px;line-height:1.6;color:var(--body);max-width:520px;margin-bottom:26px}
+
+.ticks{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:30px}
+.ticks li{display:flex;align-items:flex-start;gap:11px;font-size:16px;font-weight:600;color:var(--ink);line-height:1.45}
+.tick{
+  flex:none;width:21px;height:21px;border-radius:50%;margin-top:2px;
+  background:#E5F5EC;display:grid;place-items:center;
+}
+.tick svg{width:11px;height:11px;stroke:var(--win-dk);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.microcopy{font-size:14px;color:var(--body);max-width:520px;line-height:1.6}
+.microcopy strong{color:var(--ink);font-weight:600}
+
+/* ── Hero mockup - a local search with the client rising to #1 ── */
+.lp-card{
+  background:var(--bg);border-radius:16px;overflow:hidden;position:relative;
+  box-shadow:0 2px 4px rgba(11,21,36,.15),0 26px 60px -20px rgba(0,0,0,.55);
+}
+.lp-search{
+  display:flex;align-items:center;gap:10px;padding:14px 16px;
+  border-bottom:1px solid var(--line);color:var(--body);font-size:14.5px;
+}
+.lp-search svg{width:16px;height:16px;stroke:var(--muted);stroke-width:2;fill:none;stroke-linecap:round}
+.lp-map{position:relative;height:118px;overflow:hidden;border-bottom:1px solid var(--line);background:#FBFCFD}
+.lp-dot{
+  position:absolute;width:12px;height:12px;border-radius:50%;
+  border:2px solid #fff;box-shadow:0 1px 3px rgba(11,21,36,.3);
+}
+.lp-list{position:relative;height:234px;overflow:hidden}
+.lp-row{
+  position:absolute;left:0;right:0;height:78px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:0 16px;border-bottom:1px solid var(--line);background:var(--bg);
+  transition:top .65s cubic-bezier(.4,0,.2,1);
+}
+.lp-row.you{background:#F2FAF5}
+.lp-biz b{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+.lp-you{
+  font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--win-dk);color:#fff;border-radius:4px;padding:2px 6px;
+}
+.lp-stars{display:block;font-size:12.5px;color:var(--body);margin-top:3px}
+.lp-stars i{font-style:normal;color:#F0B428;letter-spacing:1px}
+.lp-meta{display:block;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);margin-top:3px}
+.lp-call{
+  flex:none;display:inline-flex;align-items:center;gap:6px;
+  font-size:12.5px;font-weight:600;color:var(--accent);
+  border:1px solid var(--line-2);border-radius:999px;padding:7px 13px;
+}
+.lp-call svg{width:12px;height:12px;stroke:var(--accent);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+/* call toast - the payoff after reaching #1 */
+.lp-toast{
+  position:absolute;right:12px;bottom:12px;z-index:5;
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px;
+  box-shadow:0 8px 24px -6px rgba(11,21,36,.35);
+  opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s;
+  pointer-events:none;
+}
+.lp-toast.show{opacity:1;transform:translateY(0)}
+.lp-toast-ic{
+  width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:none;
+  background:#E5F5EC;
+}
+.lp-toast-ic svg{width:14px;height:14px;stroke:var(--win-dk);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.lp-toast-tx b{display:block;font-size:13px;font-weight:700;color:var(--ink)}
+.lp-toast-tx span{font-size:11.5px;color:var(--muted)}
+
+/* ── Journey card styles (mapgrid/pins still used by the sliders) ── */
+.card{background:var(--bg);border:1px solid var(--line-2);border-radius:14px;overflow:hidden}
+.card-text{padding:20px 22px 24px;border-top:1px solid var(--line)}
+.card-h{font-size:18px;font-weight:700;letter-spacing:-.015em;margin-bottom:6px}
+.card-p{font-size:14px;line-height:1.55;color:var(--body)}
+.card-p b{color:var(--ink);font-weight:600}
+.mapgrid{
+  position:relative;
+  display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:14px;
+  background:#FBFCFD;
+}
+
+/* stylised street map behind the pins - neutral greys */
+.mapbg{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block}
+/* on :root, not .card - the before/after sliders clone this SVG outside
+   the hero card, and undefined vars render the map black */
+:root{
+  --map-base:#FBFCFD;
+  --map-road:rgba(11,21,36,.09);
+  --map-art:rgba(11,21,36,.16);
+  --map-water:rgba(110,140,174,.28);
+  --map-park:rgba(94,155,118,.14);
+}
+.m-base{fill:var(--map-base)}
+.m-park{fill:var(--map-park)}
+.m-water{fill:none;stroke:var(--map-water);stroke-width:9;stroke-linecap:round}
+.m-st{stroke:var(--map-road);stroke-width:1;fill:none}
+.m-art{stroke:var(--map-art);stroke-width:2.4;fill:none;stroke-linecap:round}
+
+/* pins - the one colourful thing on the page, deliberately */
+.node{position:relative;z-index:1;aspect-ratio:1;display:grid;place-items:center}
+.n-bad{--pin:var(--lose);--pin-ink:#3B0A0F}
+.n-mid{--pin:var(--warn);--pin-ink:#3A2A05}
+.n-good{--pin:var(--win);--pin-ink:#052A1B}
+.pin{
+  position:relative;width:74%;aspect-ratio:1;border-radius:50%;
+  display:grid;place-items:center;transform:translateY(-8%);
+  background:var(--pin);color:var(--pin-ink);
+  font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.18));
+  transition:background .55s ease var(--d,0ms),color .55s ease var(--d,0ms);
+}
+.pin::after{
+  content:"";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);
+  border-left:6px solid transparent;border-right:6px solid transparent;
+  border-top:9px solid var(--pin);
+  transition:border-color .55s ease var(--d,0ms);
+}
+/* the business's own pin gets a white sticker ring, the way maps mark
+   "you are here" - reads cleaner than a grey border on the pale map */
+.is-home .pin{
+  outline:2.5px solid #fff;outline-offset:0;
+  filter:drop-shadow(0 2px 4px rgba(11,21,36,.35));
+}
+
+/* timeline scrubber */
+.tl{margin-top:22px}
+.tl-track{position:relative;display:flex;justify-content:space-between;padding:0 2px}
+.tl-line{position:absolute;left:8px;right:8px;top:5px;height:2px;background:var(--line-2);border-radius:2px}
+/* the fill travels slowly and rests briefly - most of each stage is
+   spent moving, which reads calmer than a quick jump and a long wait */
+.tl-fill{position:absolute;left:8px;top:5px;height:2px;background:var(--win-dk);border-radius:2px;transition:width 2.1s ease-in-out}
+.tl-step{
+  position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:9px;
+  background:none;border:0;padding:0;cursor:pointer;font-family:inherit;
+}
+.tl-step:focus{outline:none}
+.tl-step:focus-visible .tl-dot{box-shadow:0 0 0 3px rgba(23,122,72,.35)}
+.tl-dot{width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--line-2);transition:.35s ease}
+.tl-step[data-state="past"] .tl-dot{background:var(--win-dk);border-color:var(--win-dk)}
+.tl-step[data-state="now"] .tl-dot{background:var(--win-dk);border-color:var(--win-dk);animation:dotpulse 2.4s ease-in-out infinite}
+/* halo breathes gently - enough to catch the eye, not enough to nag */
+@keyframes dotpulse{
+  0%,100%{box-shadow:0 0 0 3px rgba(23,122,72,.14)}
+  50%{box-shadow:0 0 0 6px rgba(23,122,72,.24)}
+}
+@media (prefers-reduced-motion:reduce){
+  .tl-step[data-state="now"] .tl-dot{animation:none;box-shadow:0 0 0 4px rgba(23,122,72,.18)}
+}
+.tl-step:hover .tl-dot{border-color:var(--win-dk)}
+.tl-label{font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--muted);white-space:nowrap;transition:color .3s}
+.tl-step[data-state="now"] .tl-label{color:var(--ink)}
+.tl-cap{margin-top:15px;min-height:22px;font-size:13.5px;color:var(--ink);font-weight:600}
+
+/* ── Generic grids / panels ───────────────────────────────────── */
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.panel{background:var(--bg);border:1px solid var(--line-2);border-radius:14px;padding:24px}
+/* outer boxes only - boxes nested inside these stay shadowless */
+.card,.panel,.rcard,.minicta,.step-card,.get-card,.qform,.cta-card,
+.stat,.shot,.case-media,.msg{box-shadow:var(--shadow)}
+/* invisible against the dark band anyway - keep those tiles flat */
+.band-dark .stat{box-shadow:none}
+
+/* results - placeholder scaffold until beta data lands */
+.tbd{border-style:dashed}
+
+/* ── Before / after map slider ────────────────────────────────────
+   Same pins as the hero card, two layers: the AFTER grid underneath,
+   the BEFORE grid on top clipped to the left of the handle. Drag to
+   sweep between them, teeth-whitening style.                       */
+.ba{
+  position:relative;border:1px solid var(--line-2);border-radius:10px;overflow:hidden;
+  margin-bottom:16px;background:#FBFCFD;cursor:ew-resize;
+  user-select:none;-webkit-user-select:none;touch-action:none;
+}
+.ba .mapgrid{padding:10px;gap:4px}
+.ba .pin{font-size:9.5px}
+/* explicit stack: after layer at the bottom, before layer above it
+   (its pins carry z-index:1, so the layer itself must outrank them),
+   then labels, then the handle */
+.ba-after{position:relative;z-index:0}
+.ba-before{position:absolute;inset:0;z-index:2}
+.ba-before .mapgrid{width:100%;height:100%}
+.ba-line{
+  position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;z-index:4;
+  background:#fff;box-shadow:0 0 0 1px rgba(11,21,36,.18);pointer-events:none;
+}
+.ba-grip{
+  position:absolute;top:50%;transform:translate(-50%,-50%);z-index:4;
+  width:30px;height:30px;border-radius:50%;pointer-events:none;
+  background:#fff;border:1px solid var(--line-2);
+  box-shadow:0 2px 6px rgba(11,21,36,.22);
+  display:grid;place-items:center;
+}
+.ba-grip svg{width:14px;height:14px;stroke:var(--ink);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+/* solid white pills with a status dot - pastel chips vanished into
+   the pin colours around them */
+.ba-tag{
+  position:absolute;top:8px;z-index:3;pointer-events:none;
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;font-weight:600;letter-spacing:.07em;
+  background:#fff;color:var(--ink);border-radius:999px;padding:5px 10px;
+  box-shadow:0 1px 4px rgba(11,21,36,.28);
+  transition:opacity .25s;
+}
+.ba-tag::before{content:"";width:7px;height:7px;border-radius:50%;flex:none}
+.ba-tag.before{left:8px}
+.ba-tag.before::before{background:var(--lose)}
+.ba-tag.after{right:8px}
+.ba-tag.after::before{background:var(--win)}
+
+/* ── Result cards ─────────────────────────────────────────────── */
+.rcard{background:var(--bg);border:1px solid var(--line-2);border-radius:14px;padding:22px}
+.rcard-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.rcard-logo{
+  width:32px;height:32px;flex:none;border-radius:7px;display:grid;place-items:center;
+  background:var(--bg-alt);border:1px dashed var(--line-2);
+  font-size:7.5px;font-weight:600;letter-spacing:.05em;color:var(--muted);
+}
+.rcard-name{font-size:15.5px;font-weight:600;letter-spacing:-.01em}
+.rcard-chip{
+  margin-left:auto;font-size:10.5px;font-weight:500;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--muted);border:1px solid var(--line);
+  border-radius:999px;padding:5px 9px;white-space:nowrap;
+}
+.rcard-metric{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.rcard-metric .from{font-size:19px;color:var(--muted)}
+.rcard-metric .to{font-size:27px;color:var(--win-dk)}
+.rcard-cap{font-size:12.5px;color:var(--muted);line-height:1.55;margin:6px 0 0}
+/* the one-sentence business outcome - the only prose on the card */
+.rcard-story{font-size:14.5px;line-height:1.55;color:var(--body);margin-top:14px}
+.rcard-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:20px;padding-top:14px;border-top:1px solid var(--line);
+  font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);
+}
+.rcard-foot b{color:var(--ink);font-weight:600}
+
+/* mini CTA under the result cards - the one dark block on the page,
+   so it reads as a deliberate interruption rather than furniture */
+.minicta{
+  display:flex;align-items:center;justify-content:space-between;gap:28px;
+  margin-top:44px;padding:24px 28px;border-radius:14px;
+  background-color:var(--navy);
+}
+/* the gap above the dark bar (margin) and below it should roughly
+   match. How It Works is white too now, so its top padding counts
+   toward the same gap - both halves stay small. */
+#results{padding-bottom:28px}
+#how{padding-top:28px}
+/* client voice and the case study are both white now - halve the gap
+   between them, same treatment as results into how-it-works */
+#voice{padding-bottom:28px}
+#case{padding-top:28px}
+/* the back half of the page is all white - stacked 76px paddings
+   read as dead air, so each seam gets trimmed */
+#gameplan{padding:72px 0}
+#faq{padding:40px 0}
+#closing{padding:24px 0 72px}
+/* a dark box needs a heavier shadow than the white cards - the shared
+   10% one disappears against it */
+.minicta{box-shadow:0 2px 4px rgba(11,21,36,.12),0 14px 34px -14px rgba(11,21,36,.4)}
+.minicta h3{font-size:21px;font-weight:700;letter-spacing:-.018em;color:#fff;margin-bottom:7px}
+.minicta p{font-size:15px;line-height:1.5;max-width:640px;color:#C3CCE7}
+.minicta .btn{flex:none}
+
+/* ── Step cards ───────────────────────────────────────────────── */
+.head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:32px;margin-bottom:40px}
+.head-row .sec-head{margin-bottom:0}
+.head-row .btn{flex:none;margin-top:27px}
+
+.step-card{
+  position:relative;overflow:hidden;
+  background:var(--bg);border:1px solid var(--line-2);border-radius:14px;padding:24px 22px 26px;
+}
+/* orange rule wipes in from the left on hover - clipped by the card's
+   own radius so it follows the corners */
+.step-card::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:linear-gradient(90deg,#B84A02,#DB5F05 50%,#F0801F);
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .45s cubic-bezier(.4,0,.2,1);
+}
+.step-card:hover::after{transform:scaleX(1)}
+@media (prefers-reduced-motion:reduce){
+  .step-card::after{transition:none}
+}
+.step-card .num{
+  display:grid;place-items:center;width:38px;height:38px;border-radius:9px;
+  background:linear-gradient(175deg,#F0801F,#DB5F05 58%,#B84A02);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+  margin-bottom:18px;
+}
+.step-card .num svg{width:19px;height:19px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.step-card h3{font-size:17px;font-weight:600;letter-spacing:-.012em;margin-bottom:9px}
+.step-card p{font-size:14.5px;color:var(--body);line-height:1.55}
+
+/* lists */
+.checks{list-style:none;display:flex;flex-direction:column;gap:11px}
+.checks li{display:flex;align-items:flex-start;gap:10px;font-size:15px;color:var(--ink);line-height:1.45}
+.checks .m{flex:none;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;margin-top:2px}
+.checks .m svg{width:10px;height:10px;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.yes .m{background:#E5F5EC}
+.yes .m svg{stroke:var(--win-dk)}
+.no .m{background:#FCE9EA}
+.no .m svg{stroke:var(--lose-dk)}
+
+/* ── Flagship case study ──────────────────────────────────────── */
+.case-inner{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:center}
+.case-inner .sec-head{margin-bottom:0}
+.case-inner .cta-row{margin-top:24px;margin-bottom:0}
+.case-inner .stat-row{margin:28px 0 0}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.case-media{
+  position:relative;aspect-ratio:16/10;border-radius:14px;overflow:hidden;
+  background:var(--bg-alt);border:1px dashed var(--line-2);
+  display:grid;place-items:center;text-align:center;padding:26px;
+}
+.case-media .ph{align-self:end;font-size:11px;letter-spacing:.06em;color:var(--muted);line-height:1.8;text-transform:uppercase}
+.play{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:56px;height:56px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(175deg,#F0801F,#DB5F05 58%,#B84A02);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+}
+.play::after{
+  content:"";margin-left:4px;
+  border-left:15px solid #fff;border-top:10px solid transparent;border-bottom:10px solid transparent;
+}
+.case-media .msg{margin-top:0}
+.case-side .msg{margin-top:14px}
+.stat{background:var(--bg);border:1px solid var(--line-2);border-radius:10px;padding:16px 15px}
+.stat b{display:block;font-size:21px;font-weight:700;letter-spacing:-.02em;margin-bottom:5px;line-height:1.1}
+.stat span{font-size:10.5px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);line-height:1.4}
+/* raw client message - the least designed thing on the page, deliberately */
+.msg{background:var(--bg-alt);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.msg p{font-size:15px;line-height:1.6;color:var(--ink)}
+.msg cite{display:block;margin-top:12px;font-style:normal;font-size:10.5px;letter-spacing:.05em;color:var(--muted)}
+
+/* ── Client voice ─────────────────────────────────────────────── */
+.voice-inner{display:grid;grid-template-columns:280px 1fr;gap:48px;align-items:start}
+.shot{
+  aspect-ratio:5/6;border-radius:14px;overflow:hidden;
+  background:var(--bg-alt);border:1px dashed var(--line-2);
+  display:grid;place-items:end center;text-align:center;padding:20px;
+}
+.shot span{font-size:11px;letter-spacing:.06em;color:var(--muted);line-height:1.8;text-transform:uppercase}
+.stat-row.two{grid-template-columns:repeat(2,1fr)}
+.pull{
+  font-size:clamp(20px,2.2vw,27px);font-weight:600;line-height:1.35;letter-spacing:-.015em;
+  margin-top:26px;color:var(--ink);
+}
+.pull-cite{margin-top:14px;font-size:13px;color:var(--muted)}
+.pull-cite b{color:var(--ink);font-weight:600}
+
+/* ── What you get ─────────────────────────────────────────────── */
+.get-inner{display:grid;grid-template-columns:.9fr 1.1fr;gap:52px;align-items:center}
+.get-inner .sec-head{margin-bottom:0}
+.get-inner .cta-row{margin-top:28px;margin-bottom:0}
+.get-card{background:var(--bg);border:1px solid var(--line-2);border-radius:14px;padding:28px}
+.get-card h3{font-size:18px;font-weight:700;letter-spacing:-.015em;margin-bottom:20px}
+.get-list{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.get-list li{display:flex;align-items:flex-start;gap:11px;font-size:15px;line-height:1.45;color:var(--ink)}
+.get-list .m{
+  flex:none;width:20px;height:20px;border-radius:6px;margin-top:1px;display:grid;place-items:center;
+  background:#E5F5EC;
+}
+.get-list .m svg{width:11px;height:11px;stroke:var(--win-dk);stroke-width:3.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.get-roles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.get-role{background:var(--bg-alt);border:1px solid var(--line);border-radius:10px;padding:16px 17px}
+.get-role b{
+  display:block;font-size:11px;font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:8px;
+}
+.get-role p{font-size:13.5px;color:var(--body);line-height:1.5}
+
+/* ── Guarantee ────────────────────────────────────────────────────
+   Boxed like a document on purpose - the strongest claim on the page
+   gets the most deliberate framing. Header centred, deal terms in
+   two left-aligned columns, consequence stated in the headline.    */
+/* full navy band: guarantee copy on the canvas, white form floating
+   beside it - the original design's layout carrying the new content */
+.gtee-inner{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+/* green, not orange - on this site green means "good outcome", which
+   is what a guarantee is; orange stays reserved for buttons */
+.band-dark .gtee-badge{background:rgba(51,206,117,.13);border-color:rgba(51,206,117,.4);color:#3FCB80}
+.band-dark .gtee-badge svg{stroke:#3FCB80}
+.gtee-sub{font-size:17px;line-height:1.6;color:#C3CCE7;margin:20px 0 28px;max-width:540px}
+/* our side of the deal, compressed to one confident line */
+.gtee-our{font-size:15.5px;font-weight:600;color:#fff;line-height:1.55;margin-top:26px;max-width:540px}
+.gtee-fine{font-size:13px;color:#9BA7CC;line-height:1.6;margin:18px 0 0;max-width:540px}
+
+/* the white form floats free on the navy - the one object to land on */
+.gtee-form{
+  background:var(--bg);border-radius:16px;padding:32px;
+  box-shadow:0 30px 68px -24px rgba(0,0,0,.45);
+}
+.gtee-form-inner{width:100%}
+.gtee-form h3{font-size:19px;font-weight:700;letter-spacing:-.015em;text-align:center;margin-bottom:4px}
+.gtee-form .fsub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:22px}
+.qdots{display:flex;gap:6px;justify-content:center;margin-bottom:20px}
+.qdot{width:26px;height:3px;border-radius:2px;background:var(--line-2);transition:background .3s}
+.qdot.on{background:var(--cta)}
+.qlabel{display:block;font-size:16px;font-weight:600;letter-spacing:-.012em;margin-bottom:12px}
+.qfields{display:flex;flex-direction:column;gap:10px}
+.gtee-form input,.gtee-form textarea{
+  width:100%;font-family:inherit;font-size:15.5px;color:var(--ink);
+  background:var(--bg);border:1px solid var(--line-2);border-radius:8px;padding:13px 14px;
+  transition:border-color .15s;
+}
+.gtee-form textarea{resize:vertical;min-height:64px}
+.gtee-form input::placeholder,.gtee-form textarea::placeholder{color:var(--muted)}
+.gtee-form input:focus,.gtee-form textarea:focus{outline:none;border-color:var(--ink)}
+.qhint{font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:10px}
+.qstep .btn{margin-top:18px;width:100%}
+.qback{
+  display:block;margin:12px auto 0;background:none;border:0;cursor:pointer;
+  font-family:inherit;font-size:13px;color:var(--muted);
+}
+.qback:hover{color:var(--ink)}
+.qmeta{
+  margin-top:20px;padding-top:16px;border-top:1px solid var(--line);
+  font-size:12px;line-height:1.6;color:var(--muted);text-align:center;
+}
+@media (max-width:980px){
+  .gtee-inner{grid-template-columns:1fr;gap:44px}
+}
+@media (max-width:820px){
+  .gtee-form{padding:26px 20px 24px}
+}
+.gtee-badge{
+  display:inline-flex;align-items:center;gap:8px;margin-bottom:18px;
+  font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:#A64A05;background:#FDEEDF;border:1px solid #F5D9BC;
+  border-radius:999px;padding:7px 13px;
+}
+.gtee-badge svg{width:13px;height:13px;fill:none;stroke:#A64A05;stroke-width:2}
+
+/* ── Founder ──────────────────────────────────────────────────── */
+.founder-inner{display:grid;grid-template-columns:.78fr 1.22fr;gap:52px;align-items:center}
+.founder-inner .sec-head{margin-bottom:0}
+.founder-photo{
+  aspect-ratio:4/5;border-radius:14px;overflow:hidden;
+  background:var(--bg-alt);border:1px dashed var(--line-2);
+  display:flex;flex-direction:column;
+}
+.founder-photo .ph{
+  flex:1;display:grid;place-items:center;text-align:center;padding:24px;
+  font-size:11px;letter-spacing:.06em;color:var(--muted);line-height:1.8;text-transform:uppercase;
+}
+.founder-cap{background:var(--bg);padding:16px 18px;border-top:1px solid var(--line)}
+.founder-cap b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.01em;margin-bottom:3px}
+.founder-cap span{font-size:13px;color:var(--muted);line-height:1.45}
+.creds{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:28px}
+.creds li{
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg);border:1px solid var(--line-2);border-radius:9px;
+  padding:14px 16px;font-size:14px;font-weight:500;color:var(--ink);line-height:1.35;
+}
+.creds li::before{content:"→";flex:none;font-weight:400;font-size:14px;color:var(--muted)}
+
+/* ── Who this is for ──────────────────────────────────────────── */
+.who-inner{display:grid;grid-template-columns:1fr 1.02fr;gap:52px;align-items:center}
+.who-inner .sec-head{margin-bottom:0;max-width:none}
+.notfor{margin-top:28px}
+.notfor b{
+  display:block;font-size:11px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:14px;
+}
+.notfor .checks li{font-size:14.5px}
+.who-inner .cta-row{margin-top:26px;margin-bottom:0}
+
+/* industries - two rows of cards drifting in opposite directions */
+.marquee{display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.mq-row{
+  overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+}
+.mq-track{display:flex;gap:12px;width:max-content;animation:mq 42s linear infinite}
+.mq-track.rev{animation-direction:reverse}
+/* third row drifts the same way as the first but slower, so the two
+   left-going rows never look mechanically synced */
+.mq-track.slow{animation-duration:56s}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.marquee:hover .mq-track{animation-play-state:paused}
+.mq-card{
+  display:flex;align-items:center;gap:9px;white-space:nowrap;
+  background:var(--bg);border:1px solid var(--line-2);border-radius:9px;
+  padding:12px 17px;font-size:14.5px;font-weight:500;color:var(--ink);
+}
+.mq-card i{width:7px;height:7px;border-radius:50%;background:var(--win-dk);flex:none}
+@media (prefers-reduced-motion:reduce){.mq-track{animation:none}}
+
+/* FAQ */
+.faq{max-width:780px;margin:0 auto}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{
+  list-style:none;cursor:pointer;padding:20px 40px 20px 0;position:relative;
+  font-size:16.5px;font-weight:600;letter-spacing:-.01em;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{
+  content:"";position:absolute;right:6px;top:27px;width:10px;height:10px;
+  border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+  transform:rotate(45deg);transition:transform .25s;
+}
+.faq details[open] summary::after{transform:rotate(-135deg);top:31px}
+.faq p{font-size:15px;color:var(--body);line-height:1.65;padding:0 40px 22px 0}
+
+/* ── Closing CTA ──────────────────────────────────────────────── */
+/* dark card on a white band, matching the guarantee card */
+.cta-card{
+  background-color:var(--navy);
+  border-radius:14px;padding:56px 36px 50px;text-align:center;
+  box-shadow:0 2px 4px rgba(11,21,36,.12),0 18px 44px -16px rgba(11,21,36,.45);
+}
+.cta-card h2{max-width:780px;margin:0 auto 26px;color:#fff}
+.cta-card .btn{margin:0 auto}
+.cta-card p{margin-top:18px;font-size:13px;color:#9BA7CC;line-height:1.7}
+
+/* ── Footer ───────────────────────────────────────────────────── */
+.foot-top{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:40px;padding-bottom:34px}
+.foot-about{max-width:340px}
+.foot-about .brand{font-size:17px;gap:8px;margin-bottom:14px}
+.foot-about .brand svg{width:20px;height:20px}
+.foot-about p{font-size:13.5px;line-height:1.6;color:var(--muted);margin-top:12px}
+.foot-col h3{
+  font-size:11px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:16px;
+}
+.foot-col ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.foot-col a{font-size:14.5px;color:var(--body)}
+.foot-col a:hover{color:var(--ink)}
+.foot-bottom{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:36px;
+  padding-top:24px;border-top:1px solid var(--line);
+}
+.foot-bottom p{font-size:12.5px;color:var(--muted);line-height:1.65}
+.foot-legal{max-width:620px;text-align:right}
+/* dark footer - the page closes on the same navy it opened with */
+footer{padding:56px 0 36px;background-color:#182644;color:#C3CCE7}
+footer .brand{color:#fff}
+.foot-about p{color:#9BA7CC}
+.foot-col h3{color:#9BA7CC}
+.foot-col a{color:#C3CCE7}
+.foot-col a:hover{color:#fff}
+.foot-bottom{border-top-color:rgba(255,255,255,.14)}
+.foot-bottom p{color:#9BA7CC}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+/* on mobile the journey card costs a full screen of scroll before any
+   proof - the results sliders tell the same story better, so it goes */
+@media (max-width:820px){
+  .hero .lp-card{display:none}
+}
+@media (max-width:1080px){
+  .hero-inner,.who-inner,.case-inner,.founder-inner,.voice-inner,.get-inner,.gtee-inner{grid-template-columns:1fr;gap:44px}
+  .shot{max-width:280px}
+  .founder-photo{aspect-ratio:16/9}
+  .head-row{flex-direction:column;align-items:flex-start;gap:24px}
+  .head-row .btn{margin-top:0}
+  .lede,.microcopy{max-width:640px}
+  .nav-links{display:none}
+  .g3,.g4{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:820px){
+  .wrap{padding:0 20px}
+  section{padding:56px 0}
+  .hero{padding:48px 0}
+  .g3,.g4,.get-roles,.creds{grid-template-columns:1fr}
+  .minicta{flex-direction:column;align-items:flex-start;gap:20px;padding:22px}
+  .minicta .btn{width:100%}
+  .foot-top{grid-template-columns:1fr;gap:32px}
+  .foot-about{max-width:none}
+  .card-text{padding:18px 16px 20px}
+  .cta-card{padding:40px 22px 36px}
+  .foot-bottom{flex-direction:column;gap:16px}
+  .foot-legal{text-align:left;max-width:none}
+  .btn-lg{width:100%}
+  .nav{height:58px}
+  .nav .btn{font-size:12.5px;padding:10px 14px;gap:6px}
+}
+@media (max-width:400px){
+  .brand{font-size:16px;gap:7px}
+  .brand svg{width:19px;height:19px}
+  .nav .btn{font-size:12px;padding:9px 12px}
+}
+</style>
+</head>
+<body>
+
+<div class="top-rule"></div>
+
+<header>
+  <div class="wrap nav">
+    <a href="./" class="brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect class="b1" x="1" y="15" width="6" height="8" rx="2"/>
+        <rect class="b2" x="9" y="9" width="6" height="14" rx="2"/>
+        <rect class="b3" x="17" y="1" width="6" height="22" rx="2"/>
+      </svg>LocalViz</a>
+    <nav class="nav-links">
+      <a href="#results">Results</a>
+      <a href="#how">How it works</a>
+      <a href="#who">Who it's for</a>
+    </nav>
+    <a href="#apply" class="btn btn-cta">Free audit &amp; proposal</a>
+  </div>
+</header>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════ -->
+<section class="hero band-dark">
+  <div class="wrap hero-inner">
+    <div>
+      <h1>Own Google Maps, Across Your <em>Entire</em> Service Area</h1>
+
+      <p class="lede">We win you more Top 3 Google Maps placements across the suburbs you serve, and get you found in AI tools like ChatGPT.</p>
+
+      <ul class="ticks">
+        <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>Month-to-month</li>
+        <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>You own everything</li>
+        <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>ROI tracked monthly</li>
+      </ul>
+
+      <div class="cta-row">
+        <a href="#apply" class="btn btn-cta btn-lg">Get my free audit &amp; proposal</a>
+      </div>
+
+      <p class="microcopy"><strong>No call required.</strong> We'll analyse your market and email you a video audit, a clear plan and a fixed price.</p>
+    </div>
+
+    <!-- stylised local-search mockup: the client rises into the top 3,
+         then the phone rings. Generic styling on purpose - it must read
+         as "a maps search", not impersonate Google. -->
+    <div class="lp-card" id="lpDemo">
+      <div class="lp-search" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
+        <span>emergency plumber near me</span>
+      </div>
+      <div class="lp-map" aria-hidden="true">
+          <svg class="mapbg" viewBox="0 0 320 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <rect class="m-base" x="-40" y="-40" width="400" height="400"/>
+              <rect class="m-park" x="30" y="42" width="60" height="46" rx="11"/>
+              <path class="m-park" d="M214 56q31-9 45 15 10 27-15 39-33 10-45-15-6-25 15-39z"/>
+              <rect class="m-park" x="118" y="262" width="72" height="42" rx="13"/>
+              <g class="m-st" transform="rotate(-17 160 160)">
+                <line x1="-70" y1="-60" x2="390" y2="-60"/><line x1="-70" y1="-38" x2="390" y2="-38"/>
+                <line x1="-70" y1="-16" x2="390" y2="-16"/><line x1="-70" y1="6" x2="390" y2="6"/>
+                <line x1="-70" y1="28" x2="390" y2="28"/><line x1="-70" y1="50" x2="390" y2="50"/>
+                <line x1="-70" y1="72" x2="390" y2="72"/><line x1="-70" y1="94" x2="390" y2="94"/>
+                <line x1="-70" y1="116" x2="390" y2="116"/><line x1="-70" y1="138" x2="390" y2="138"/>
+                <line x1="-70" y1="160" x2="390" y2="160"/><line x1="-70" y1="182" x2="390" y2="182"/>
+                <line x1="-70" y1="204" x2="390" y2="204"/><line x1="-70" y1="226" x2="390" y2="226"/>
+                <line x1="-70" y1="248" x2="390" y2="248"/><line x1="-70" y1="270" x2="390" y2="270"/>
+                <line x1="-70" y1="292" x2="390" y2="292"/><line x1="-70" y1="314" x2="390" y2="314"/>
+                <line x1="-70" y1="336" x2="390" y2="336"/><line x1="-70" y1="358" x2="390" y2="358"/>
+                <line x1="-60" y1="-70" x2="-60" y2="390"/><line x1="-34" y1="-70" x2="-34" y2="390"/>
+                <line x1="-8" y1="-70" x2="-8" y2="390"/><line x1="18" y1="-70" x2="18" y2="390"/>
+                <line x1="44" y1="-70" x2="44" y2="390"/><line x1="70" y1="-70" x2="70" y2="390"/>
+                <line x1="96" y1="-70" x2="96" y2="390"/><line x1="122" y1="-70" x2="122" y2="390"/>
+                <line x1="148" y1="-70" x2="148" y2="390"/><line x1="174" y1="-70" x2="174" y2="390"/>
+                <line x1="200" y1="-70" x2="200" y2="390"/><line x1="226" y1="-70" x2="226" y2="390"/>
+                <line x1="252" y1="-70" x2="252" y2="390"/><line x1="278" y1="-70" x2="278" y2="390"/>
+                <line x1="304" y1="-70" x2="304" y2="390"/><line x1="330" y1="-70" x2="330" y2="390"/>
+                <line x1="356" y1="-70" x2="356" y2="390"/><line x1="382" y1="-70" x2="382" y2="390"/>
+              </g>
+              <path class="m-water" d="M-20 250c70-18 110 24 170 6 60-18 108 12 190-10"/>
+              <g class="m-art" transform="rotate(-17 160 160)">
+                <line x1="-70" y1="50" x2="390" y2="50"/><line x1="-70" y1="182" x2="390" y2="182"/>
+                <line x1="-70" y1="292" x2="390" y2="292"/>
+                <line x1="44" y1="-70" x2="44" y2="390"/><line x1="174" y1="-70" x2="174" y2="390"/>
+                <line x1="304" y1="-70" x2="304" y2="390"/>
+              </g>
+              <path class="m-art" d="M-20 20 L340 300"/>
+            </svg>
+          <span class="lp-dot" style="left:18%;top:30%;background:var(--lose)"></span>
+          <span class="lp-dot" style="left:71%;top:22%;background:var(--lose)"></span>
+          <span class="lp-dot" style="left:44%;top:58%;background:var(--warn)"></span>
+          <span class="lp-dot" style="left:60%;top:74%;background:var(--win)"></span>
+      </div>
+      <div class="lp-list" id="lpList" aria-hidden="true"></div>
+      <div class="lp-toast" id="lpToast" aria-hidden="true">
+        <span class="lp-toast-ic"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.5 2.1L8.1 9.9a16 16 0 006 6l1.2-1.2a2 2 0 012.1-.5c.9.3 1.9.6 2.9.7a2 2 0 011.7 2z"/></svg></span>
+        <span class="lp-toast-tx"><b>New call</b><span>Job enquiry &middot; just now</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TRUST BAR ═════════════════════════════════════════════════ -->
+<div class="trustbar">
+  <div class="trustbar-viewport">
+    <div class="tb-track">
+      <div class="tb-item"><b>15+ yrs</b><span>Digital marketing</span></div>
+      <div class="tb-item"><b>120+</b><span>Businesses helped</span></div>
+      <div class="tb-item"><b>100k+</b><span>Leads and calls generated</span></div>
+      <div class="tb-item"><b>$100m+</b><span>Client revenue added</span></div>
+      <div class="tb-item tb-dup" aria-hidden="true"><b>15+ yrs</b><span>Digital marketing</span></div>
+      <div class="tb-item tb-dup" aria-hidden="true"><b>120+</b><span>Businesses helped</span></div>
+      <div class="tb-item tb-dup" aria-hidden="true"><b>100k+</b><span>Leads and calls generated</span></div>
+      <div class="tb-item tb-dup" aria-hidden="true"><b>$100m+</b><span>Client revenue added</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESULTS ═══════════════════════════════════════════════════
+     PLACEHOLDER SCAFFOLD. Every value in square brackets must be
+     replaced with a verified result before this page goes live.
+     Do not ship invented numbers or business names.
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="results">
+  <div class="wrap">
+    <div class="head-row">
+      <div class="sec-head">
+        <span class="eyebrow">Results</span>
+        <h2>Real Local Businesses, Real Map Pack Rankings</h2>
+        <p>All from the same repeatable system. Every result below is measured on the 35-point map grid we use in your audit.</p>
+      </div>
+      <a href="#apply" class="btn btn-cta">Free audit &amp; proposal</a>
+    </div>
+
+    <!-- Three different industries, deliberately - the flagship case study
+         below is legal, so these shouldn't be. -->
+    <div class="g3">
+      <div class="rcard tbd">
+        <div class="rcard-head">
+          <span class="rcard-logo">LOGO</span>
+          <span class="rcard-name">[Business]</span>
+          <span class="rcard-chip">[Plumbing] · [Suburb]</span>
+        </div>
+        <div class="ba" data-ba="0" aria-label="Before and after Google Maps rankings, drag to compare"></div>
+        <div class="rcard-metric"><span class="from">[9]</span> <span class="from">→</span> <span class="to">[34]</span></div>
+        <p class="rcard-cap">Calls a month from Google</p>
+        <p class="rcard-story">[Was invisible outside his own suburb. Now top three across [8] of the [9] suburbs he services, and he's hired two more guys to keep up.]</p>
+        <div class="rcard-foot"><span>Results in [6] months</span></div>
+      </div>
+
+      <div class="rcard tbd">
+        <div class="rcard-head">
+          <span class="rcard-logo">LOGO</span>
+          <span class="rcard-name">[Business]</span>
+          <span class="rcard-chip">[Dental] · [Suburb]</span>
+        </div>
+        <div class="ba" data-ba="1" aria-label="Before and after Google Maps rankings, drag to compare"></div>
+        <div class="rcard-metric"><span class="from">[1]</span> <span class="from">→</span> <span class="to">[7] of [9]</span></div>
+        <p class="rcard-cap">Suburbs ranked in the top three</p>
+        <p class="rcard-story">[New patients used to come from one suburb. Now the books are full across the whole east side, and they've added a second hygienist.]</p>
+        <div class="rcard-foot"><span>Results in [4] months</span></div>
+      </div>
+
+      <div class="rcard tbd">
+        <div class="rcard-head">
+          <span class="rcard-logo">LOGO</span>
+          <span class="rcard-name">[Business]</span>
+          <span class="rcard-chip">[Accounting] · [Suburb]</span>
+        </div>
+        <div class="ba" data-ba="2" aria-label="Before and after Google Maps rankings, drag to compare"></div>
+        <div class="rcard-metric"><span class="from">[21]</span> <span class="from">→</span> <span class="to">[64]</span></div>
+        <p class="rcard-cap">Enquiries a month from Google</p>
+        <p class="rcard-story">[Used to rely on referrals alone. Now turns away work in tax season, and has put on a second accountant.]</p>
+        <div class="rcard-foot"><span>Results in [5] months</span></div>
+      </div>
+    </div>
+
+    <div class="minicta">
+      <div>
+        <h3>Want Results Like These?</h3>
+        <p>The free audit shows where you rank today, and what it would take to turn your suburbs green.</p>
+      </div>
+      <a href="#apply" class="btn btn-cta">Get my free audit &amp; proposal</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ HOW IT WORKS ══════════════════════════════════════════════ -->
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head centred">
+      <span class="eyebrow">How it works</span>
+      <h2>Everything That Moves Your Rankings, Handled Every Month</h2>
+      <p>The exact process we use to rank you above your local competitors on Google.</p>
+    </div>
+
+    <div class="g4">
+      <div class="step-card">
+        <span class="num" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg></span>
+        <h3>Comprehensive Audit</h3>
+        <p>We audit your website, your Google profile, your rankings in every area you serve and where you show up in AI tools like ChatGPT. You see exactly what's holding you back.</p>
+      </div>
+      <div class="step-card">
+        <span class="num" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+        <h3>GBP Optimisation</h3>
+        <p>Your Google Business Profile is what actually ranks in the Map Pack. We optimise every part of it, from categories to photos.</p>
+      </div>
+      <div class="step-card">
+        <span class="num" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 6.5h.01"/></svg></span>
+        <h3>Website Optimisation</h3>
+        <p>We fix what the audit found, then build a dedicated page for every service you offer and every area you serve.</p>
+      </div>
+      <div class="step-card">
+        <span class="num" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l2.9 5.87 6.48.94-4.69 4.57 1.11 6.45L12 17.77l-5.8 3.06 1.11-6.45-4.69-4.57 6.48-.94z"/></svg></span>
+        <h3>Automated Reviews</h3>
+        <p>Our system asks every happy customer for a review at the right moment. Reviews are one of the heaviest Map Pack factors.</p>
+      </div>
+      <div class="step-card">
+        <span class="num" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></span>
+        <h3>Review Replies</h3>
+        <p>We reply to every review for you. It signals an active business to Google, and shows customers there's someone home.</p>
+      </div>
+      <div class="step-card">
+        <span class="num" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></span>
+        <h3>Google Posts</h3>
+        <p>Regular posts keep your profile current and give customers more reasons to choose you. We write and publish them for you.</p>
+      </div>
+      <div class="step-card">
+        <span class="num" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></span>
+        <h3>Links and Local PR</h3>
+        <p>Listings in high-authority directories and mentions from trusted local sources. It's what Google leans on when choosing who to recommend.</p>
+      </div>
+      <div class="step-card">
+        <span class="num" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 20v-4M12 20V10M18 20V4"/></svg></span>
+        <h3>Tracking and Reporting</h3>
+        <p>We track your map-grid rankings and your calls every month, and email you what changed in plain English.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOUNDER ═══════════════════════════════════════════════════
+     Numbers in brackets need substantiating before this goes live.
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="band-dark">
+  <div class="wrap founder-inner">
+    <figure class="founder-photo">
+      <span class="ph">PHOTO<br>Dima working - a map grid<br>on screen, not a studio headshot</span>
+      <figcaption class="founder-cap">
+        <b>Dima Kritchevski</b>
+        <span>Founder · Melbourne</span>
+      </figcaption>
+    </figure>
+
+    <div class="sec-head">
+      <span class="eyebrow">Who's behind this</span>
+      <h2>After 15 Years of Helping Local Businesses Succeed Online, I Built LocalViz for One Reason</h2>
+      <p>Hi, I'm Dima. I've generated more than a hundred thousand leads through every channel there is: Google Ads, Meta, SEO, you name it. And for tradies and home services businesses, nothing comes close to Google Maps for bang for buck in the vast majority of cases. That's the reason. One channel, done properly.</p>
+      <div class="stat-row two founder-stats" id="founderStats">
+        <div class="stat"><b data-count="15" data-suffix="+ yrs">15+ yrs</b><span>Digital marketing</span></div>
+        <div class="stat"><b data-count="120" data-suffix="+">120+</b><span>Businesses helped</span></div>
+        <div class="stat"><b data-count="100" data-suffix="k+">100k+</b><span>Leads and calls generated</span></div>
+        <div class="stat"><b data-count="100" data-prefix="$" data-suffix="m+">$100m+</b><span>Client revenue added</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CLIENT VOICE ══════════════════════════════════════════════
+     PLACEHOLDER. The screenshot is the point - an unedited message or
+     email beats any designed testimonial, because nobody believes a
+     marketer wrote it. Revenue figures need the client's written OK.
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="voice">
+  <div class="wrap">
+    <div class="head-row">
+      <div class="sec-head">
+        <span class="eyebrow">Straight from the group chat</span>
+        <h2>One Tiler in a Van. Now a Team of Seven</h2>
+        <p>Capstone Tiling owns tiling searches across Brighton and the south-eastern suburbs.</p>
+      </div>
+      <a href="#apply" class="btn btn-cta">Get my free audit &amp; proposal</a>
+    </div>
+
+    <div class="voice-inner">
+      <div class="shot">
+        <span>SCREENSHOT · The actual text or email, unedited. Crop the phone frame in - don't redraw it.</span>
+      </div>
+
+      <div>
+        <div class="stat-row two">
+          <div class="stat"><b>1 → 7</b><span>Staff on the tools</span></div>
+          <div class="stat"><b>[~$2M]</b><span>Annual turnover</span></div>
+        </div>
+        <p class="pull">&ldquo;[Paste the client's own words here - the sentence that made you want to build this section. Keep their phrasing, typos and all.]&rdquo;</p>
+        <p class="pull-cite">&mdash; [Name] · <b>Capstone Tiling</b> · Brighton</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FLAGSHIP CASE STUDY ═══════════════════════════════════════
+     PLACEHOLDER. One story told properly beats three told shallowly.
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="case">
+  <div class="wrap case-inner">
+    <div class="sec-head">
+      <span class="eyebrow">Case study · Josh Smith Legal</span>
+      <h2>From Invisible to Top 3 in the Melbourne CBD</h2>
+      <p>Criminal law in the Melbourne CBD is as contested as local search gets: dozens of established firms fighting over three spots on the map. [One or two lines: where Josh started, what we fixed, and what it did to his enquiries.]</p>
+      <div class="stat-row">
+        <div class="stat"><b>[#14] → [#3]</b><span>Melbourne CBD</span></div>
+        <div class="stat"><b>[+N%]</b><span>Enquiries from Google</span></div>
+        <div class="stat"><b>[N] months</b><span>To the map pack</span></div>
+      </div>
+      <div class="cta-row"><a href="#apply" class="btn btn-cta btn-lg">Get my free audit &amp; proposal</a></div>
+    </div>
+
+    <div class="case-side">
+      <div class="case-media">
+        <span class="ph">MEDIA · Before / after map grid for "criminal lawyer melbourne", or a GBP performance screenshot</span>
+        <span class="play" aria-hidden="true"></span>
+      </div>
+      <blockquote class="msg">
+        <p>[Paste what Josh actually said - unedited, typos and all. A screenshot of the email or text is stronger still. This is the least polished thing on the page, and that is exactly why it works.]</p>
+        <cite>JOSH SMITH · JOSH SMITH LEGAL · MELBOURNE</cite>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ══ WHAT'S INCLUDED ═══════════════════════════════════════════ -->
+<section class="band-alt band-grid">
+  <div class="wrap get-inner">
+    <div class="sec-head">
+      <span class="eyebrow">What's included</span>
+      <h2>Everything Your Business Needs to Dominate Google Maps</h2>
+      <p>Your involvement is about 15 minutes a month. Everything else happens in the background, and the monthly email tells you in plain English what changed and what it produced.</p>
+      <div class="cta-row"><a href="#apply" class="btn btn-cta btn-lg">Get my free audit &amp; proposal</a></div>
+    </div>
+
+    <div class="get-card">
+      <h3>Everything we handle</h3>
+      <ul class="get-list">
+        <li><span class="m"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>Local ranking and competitor analysis</li>
+        <li><span class="m"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>Google Business Profile optimisation</li>
+        <li><span class="m"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>Service and location pages, written and built</li>
+        <li><span class="m"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>Citation cleanup, links and local PR</li>
+        <li><span class="m"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>An automated review system. The asking is handled for you</li>
+        <li><span class="m"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>Map-grid ranking tracking across every area you serve</li>
+        <li><span class="m"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>Call and enquiry tracking, so you can see what it produced</li>
+        <li><span class="m"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>Monthly reporting by email in plain English, no meeting</li>
+      </ul>
+
+      <div class="get-role">
+        <b>Your role</b>
+        <p>Deliver great service, let our system ask for reviews, and send us the occasional photo. We handle the rest, and there are no calls unless you want one.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ WHO THIS IS FOR ═══════════════════════════════════════════
+     Sits directly above the application form on purpose - it's the
+     qualifying step, and the marquee shows people their own trade
+     seconds before they're asked to apply.
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="who">
+  <div class="wrap who-inner">
+    <div>
+      <div class="sec-head">
+        <span class="eyebrow">Who this is for</span>
+        <h2>Local Businesses With<br>a Service Worth Finding</h2>
+        <p>Established businesses that serve a defined local market, where a new customer is worth hundreds or thousands of dollars, whether that's a single job or years of repeat visits.</p>
+      </div>
+
+      <div class="notfor panel">
+        <b>This isn't for you if:</b>
+        <ul class="checks no">
+          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></span>You expect guaranteed top-three rankings in a few weeks.</li>
+          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></span>You're unwilling to let us request reviews from your happy customers.</li>
+          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></span>Your business can't reliably handle more enquiries.</li>
+          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></span>You want reports and meetings instead of implementation.</li>
+        </ul>
+      </div>
+
+      <div class="cta-row"><a href="#apply" class="btn btn-cta btn-lg">Get my free audit &amp; proposal</a></div>
+    </div>
+
+    <!-- rows drift in opposite directions; each list is duplicated so the
+         -50% translate loops seamlessly -->
+    <div class="marquee">
+      <div class="mq-row">
+        <div class="mq-track">
+          <span class="mq-card"><i></i>Plumbers</span><span class="mq-card"><i></i>Electricians</span><span class="mq-card"><i></i>Roofers</span><span class="mq-card"><i></i>Builders</span><span class="mq-card"><i></i>Dentists</span><span class="mq-card"><i></i>Vets</span><span class="mq-card"><i></i>Mechanics</span><span class="mq-card"><i></i>Physios</span><span class="mq-card"><i></i>Accountants</span>
+          <span class="mq-card"><i></i>Plumbers</span><span class="mq-card"><i></i>Electricians</span><span class="mq-card"><i></i>Roofers</span><span class="mq-card"><i></i>Builders</span><span class="mq-card"><i></i>Dentists</span><span class="mq-card"><i></i>Vets</span><span class="mq-card"><i></i>Mechanics</span><span class="mq-card"><i></i>Physios</span><span class="mq-card"><i></i>Accountants</span>
+        </div>
+      </div>
+      <div class="mq-row">
+        <div class="mq-track rev">
+          <span class="mq-card"><i></i>Cosmetic clinics</span><span class="mq-card"><i></i>Conveyancers</span><span class="mq-card"><i></i>Landscapers</span><span class="mq-card"><i></i>Mortgage brokers</span><span class="mq-card"><i></i>Pest control</span><span class="mq-card"><i></i>Removalists</span><span class="mq-card"><i></i>Panel beaters</span><span class="mq-card"><i></i>Lawyers</span><span class="mq-card"><i></i>Locksmiths</span>
+          <span class="mq-card"><i></i>Cosmetic clinics</span><span class="mq-card"><i></i>Conveyancers</span><span class="mq-card"><i></i>Landscapers</span><span class="mq-card"><i></i>Mortgage brokers</span><span class="mq-card"><i></i>Pest control</span><span class="mq-card"><i></i>Removalists</span><span class="mq-card"><i></i>Panel beaters</span><span class="mq-card"><i></i>Lawyers</span><span class="mq-card"><i></i>Locksmiths</span>
+        </div>
+      </div>
+      <div class="mq-row">
+        <div class="mq-track slow">
+          <span class="mq-card"><i></i>Painters</span><span class="mq-card"><i></i>Concreters</span><span class="mq-card"><i></i>Tilers</span><span class="mq-card"><i></i>Arborists</span><span class="mq-card"><i></i>Cleaning companies</span><span class="mq-card"><i></i>Glaziers</span><span class="mq-card"><i></i>Chiropractors</span><span class="mq-card"><i></i>Podiatrists</span><span class="mq-card"><i></i>Solar installers</span>
+          <span class="mq-card"><i></i>Painters</span><span class="mq-card"><i></i>Concreters</span><span class="mq-card"><i></i>Tilers</span><span class="mq-card"><i></i>Arborists</span><span class="mq-card"><i></i>Cleaning companies</span><span class="mq-card"><i></i>Glaziers</span><span class="mq-card"><i></i>Chiropractors</span><span class="mq-card"><i></i>Podiatrists</span><span class="mq-card"><i></i>Solar installers</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ GUARANTEE ═════════════════════════════════════════════════
+     Numbers in brackets are the thresholds you enforce - set them
+     before this goes live. Conditions must stay plain and up front:
+     under the ACL a guarantee is a representation, and vague or
+     buried conditions are what turn one into a problem.
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="gameplan" class="band-dark">
+  <div class="wrap gtee-inner" id="apply">
+    <div>
+      <span class="gtee-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.4-3 8.2-7 9-4-.8-7-4.6-7-9V6l7-3z"/></svg>
+        Our guarantee
+      </span>
+      <h2>We'll Double the Calls You Get From Google in 90 Days, or We Work Free Until We Do</h2>
+      <p class="gtee-sub">Call tracking goes in on day one, so your baseline and your result are measured, not guessed. Your side of the deal:</p>
+
+      <ul class="ticks">
+        <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>Do good work.</li>
+        <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>Let our system ask your customers for reviews.</li>
+        <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>Send photos when we ask.</li>
+        <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span>Answer the phone when leads call.</li>
+      </ul>
+
+      <p class="gtee-our">Ours: everything else, plus a plain-English report every month.</p>
+
+      <p class="gtee-fine">Available to qualifying businesses. If your Google Maps presence is already in the top 10&ndash;20% we can still help you, but we won't be able to offer the guarantee. Exact terms confirmed in your proposal.</p>
+    </div>
+
+    <!-- form endpoint not wired - point action at your handler before launch -->
+    <form class="gtee-form" id="auditForm" action="#" method="post">
+      <div class="gtee-form-inner">
+        <h3>Request Your Free Audit &amp; Proposal</h3>
+        <p class="fsub">Takes 2 minutes. No commitment, no call required.</p>
+        <div class="qdots" aria-hidden="true"><span class="qdot on"></span><span class="qdot"></span></div>
+
+        <div class="qstep" data-step="1">
+          <label class="qlabel" for="website">What's your website?</label>
+          <input id="website" name="website" type="text" inputmode="url" placeholder="yourbusiness.com.au" autocomplete="url" required>
+          <p class="qhint">That's all we need to start. We'll find your Google profile, categories and service area from there.</p>
+          <button type="button" class="btn btn-cta btn-lg qnext">Next</button>
+        </div>
+
+        <div class="qstep" data-step="2" hidden>
+          <label class="qlabel" for="fname">Where should we send it?</label>
+          <div class="qfields">
+            <input id="fname" name="fname" type="text" placeholder="First name" autocomplete="given-name" required>
+            <input id="email" name="email" type="email" placeholder="Business email" autocomplete="email" required>
+            <textarea id="notes" name="notes" placeholder="Anything we should know? (optional)"></textarea>
+          </div>
+          <button type="submit" class="btn btn-cta btn-lg">Get my free audit &amp; proposal</button>
+          <button type="button" class="qback">&larr; Back</button>
+        </div>
+
+        <p class="qmeta">We reply to strong fits within 2 business days with a video audit, a clear plan and a fixed price.</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ══ FAQ ═══════════════════════════════════════════════════════ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head centred">
+      <span class="eyebrow">Questions</span>
+      <h2>Frequently Asked</h2>
+    </div>
+
+    <div class="faq">
+      <details open>
+        <summary>How long does local SEO take?</summary>
+        <p>Some improvements move quickly, but competitive markets usually take several months of consistent work. Our initial plan covers the first 90 days, and we measure the same map grid throughout so you can see what's actually shifting.</p>
+      </details>
+      <details>
+        <summary>Can you guarantee top-three rankings?</summary>
+        <p>No, and nobody honestly can. A position on Google depends on location, competition and relevance, none of which any agency controls. What we'll guarantee is the thing you actually care about. Where the audit shows the gaps we usually find, we'll commit in writing to doubling the calls and enquiries you get from Google within 90 days, and keep working at no charge until we do.</p>
+      </details>
+      <details>
+        <summary>How does the guarantee work?</summary>
+        <p>It's offered case by case, after the audit, and only where the numbers support it. If your Google Maps presence is already in the top 10&ndash;20% we can still help you, but we won't be able to offer the guarantee. We document your current call volume before any work starts and install call tracking on day one, so the baseline isn't a guess. Your side is the same deal the guarantee section lists, with numbers attached: [15] reviews through our system in the first 90 days, [10] new job photos a month from around your service area, answering the phone when leads call, and access to your profile and website within [7] days of starting. If we miss the target with those in place, we keep working for free until we hit it.</p>
+      </details>
+      <details>
+        <summary>Do I need to attend a call?</summary>
+        <p>No. We analyse your business, send your video audit and proposal, and run the campaign entirely by email. If you'd rather talk things through, you can book a call after you apply. It's an option, never a requirement.</p>
+      </details>
+      <details>
+        <summary>Will I need a new website?</summary>
+        <p>Usually not. We may recommend changes to your existing site, or additional service and location pages. Anything substantial is scoped and priced in the proposal before you approve it.</p>
+      </details>
+      <details>
+        <summary>Is this just Google Business Profile optimisation?</summary>
+        <p>No. Your profile is one signal among several. We also work on your website, reviews, citations, local relevance, authority and conversion tracking, because the profile alone rarely moves a competitive market.</p>
+      </details>
+      <details>
+        <summary>Is there a long-term contract?</summary>
+        <p>No. We start with a 90-day program, but nothing locks you into it. Everything is month to month and you're free to leave at any time. That said, if you're not willing to give it at least 90 days, we'd honestly recommend not starting at all. Local SEO doesn't deliver instant results, and 90 days is the fair point to judge whether it's working.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CLOSING CTA ═══════════════════════════════════════════════ -->
+<section id="closing">
+  <div class="wrap">
+    <div class="cta-card">
+      <h2>Your Competitors Are Getting Calls That Should Be Yours. Let's Change That</h2>
+      <a href="#apply" class="btn btn-cta btn-lg">Get my free audit &amp; proposal</a>
+      <p>2-minute application · no call required · video audit, plan and fixed price within 2 business days</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-about">
+        <span class="brand">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect class="b1" x="1" y="15" width="6" height="8" rx="2"/>
+            <rect class="b2" x="9" y="9" width="6" height="14" rx="2"/>
+            <rect class="b3" x="17" y="1" width="6" height="22" rx="2"/>
+          </svg>LocalViz</span>
+        <p>Google Maps optimisation for established local service businesses. We get you found across every suburb you serve, not just the one you're standing in.</p>
+      </div>
+
+      <nav class="foot-col">
+        <h3>Explore</h3>
+        <ul>
+          <li><a href="#results">Results</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#who">Who it's for</a></li>
+          <li><a href="#apply">Request audit</a></li>
+        </ul>
+      </nav>
+
+      <div class="foot-col">
+        <h3>Get in touch</h3>
+        <ul>
+          <li><a href="mailto:hello@localviz.com.au">hello@localviz.com.au</a></li>
+          <li><a href="/privacy">Privacy policy</a></li>
+          <li><a href="/terms">Terms of service</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot-bottom">
+      <p>&copy; 2026 LocalViz · Australia</p>
+      <p class="foot-legal">Rankings vary by market, competition and starting position, and specific Google positions are not guaranteed. The performance guarantee is offered case by case following an audit, on the terms set out in your proposal. LocalViz is not affiliated with or endorsed by Google.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── Hero mockup: the client rises through the Map Pack to #1, then
+   the phone rings. Loops gently; pauses for reduced motion.       */
+(() => {
+  const list = document.getElementById('lpList');
+  const toast = document.getElementById('lpToast');
+  const card = document.getElementById('lpDemo');
+  if (!list) return;
+
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ROWH = 78;
+  const BIZ = [
+    { n: 'Apex Plumbing Co',     r: '4.7', s: 4, c: 89  },
+    { n: 'Rapid Flow Plumbing',  r: '4.5', s: 4, c: 203 },
+    { n: 'Northside Plumbers',   r: '4.4', s: 4, c: 61  },
+    { n: 'Your Business',        r: '4.9', s: 5, c: 167, you: true },
+  ];
+
+  const rows = BIZ.map(b => {
+    const el = document.createElement('div');
+    el.className = 'lp-row' + (b.you ? ' you' : '');
+    el.innerHTML =
+      '<div class="lp-biz"><b>' + b.n + (b.you ? '<i class="lp-you">You</i>' : '') + '</b>' +
+      '<span class="lp-stars">' + b.r + ' <i>' + '★'.repeat(b.s) + '</i> (<span class="lp-c">' + b.c + '</span>)</span>' +
+      '<span class="lp-meta">Plumber · Open 24 hours</span></div>' +
+      '<span class="lp-call"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.5 2.1L8.1 9.9a16 16 0 006 6l1.2-1.2a2 2 0 012.1-.5c.9.3 1.9.6 2.9.7a2 2 0 011.7 2z"/></svg>Call</span>';
+    list.appendChild(el);
+    return el;
+  });
+
+  // review counts tick up while the story plays - the client's fast
+  // (that's the review system working), competitors' barely move
+  const countEls = rows.map(el => el.querySelector('.lp-c'));
+  let counts = BIZ.map(b => b.c);
+  const paintCounts = () => countEls.forEach((el, i) => el.textContent = counts[i]);
+  let counter = null;
+  const startCounts = () => {
+    if (counter) return;
+    counter = setInterval(() => {
+      counts[3] += Math.random() < .5 ? 1 : 2;      // you: steady climb
+      for (let i = 0; i < 3; i++) if (Math.random() < .07) counts[i] += 1;
+      paintCounts();
+    }, 620);
+  };
+
+  // order[i] = which business sits in slot i (top to bottom)
+  const START = [0, 1, 2, 3];
+  let order = [...START], timer = null;
+
+  const layout = instant => {
+    rows.forEach((el, biz) => {
+      if (instant) el.style.transition = 'none';
+      el.style.top = order.indexOf(biz) * ROWH + 'px';
+      if (instant) { void el.offsetHeight; el.style.transition = ''; }
+    });
+  };
+
+  const YOU = 3;
+  const step = () => {
+    const at = order.indexOf(YOU);
+    if (at > 0) {
+      // swap upward one place
+      [order[at - 1], order[at]] = [order[at], order[at - 1]];
+      layout();
+      timer = setTimeout(step, at - 1 === 0 ? 900 : 1300);
+    } else {
+      toast.classList.add('show');
+      timer = setTimeout(() => {           // hold at #1, then loop
+        toast.classList.remove('show');
+        order = [...START];
+        counts = BIZ.map(b => b.c);        // reviews reset with the story
+        paintCounts();
+        layout(true);
+        timer = setTimeout(step, 1500);
+      }, 3600);
+    }
+  };
+
+  if (still) {                              // static final state
+    order = [3, 0, 1, 2];
+    layout(true);
+    toast.classList.add('show');
+    return;
+  }
+
+  layout(true);
+  new IntersectionObserver((es, o) => {
+    if (!es[0].isIntersecting) return;
+    o.disconnect();
+    startCounts();
+    timer = setTimeout(step, 1100);
+  }, { threshold: .5 }).observe(card);
+})();
+
+/* ── Before / after sliders in the result cards ───────────────────
+   MOCKUP DATA - random example ranks, replace with each client's real
+   before/after grids when the case studies land. The map background
+   is cloned from the hero card so the two always match.            */
+(() => {
+  const heroMap = document.querySelector('.lp-map .mapbg');
+  if (!heroMap) return;
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const bas = [];
+
+  // [before, after] - 35 ranks each, 7 across, 5 down
+  const BA_DATA = [
+    [ [19,16,13,10,12,15,17,
+       14,12, 8, 7,10,13,16,
+       13,10, 6, 2, 5, 9,12,
+       15,11, 9, 6, 8,13,14,
+       17,16,12,10,13,15,19],
+      [ 5, 4, 3, 2, 3, 4, 6,
+        4, 3, 2, 1, 2, 3, 5,
+        3, 2, 1, 1, 1, 2, 4,
+        4, 3, 2, 1, 2, 3, 5,
+        6, 4, 3, 2, 3, 4, 7] ],
+    [ [17,14,11, 9,11,14,18,
+       13,10, 7, 5, 8,12,15,
+       11, 8, 4, 1, 4, 7,10,
+       14,11, 7, 5, 7,11,13,
+       18,15,12, 9,12,15,17],
+      [ 6, 4, 3, 2, 3, 5, 7,
+        4, 3, 2, 1, 2, 3, 5,
+        3, 1, 1, 1, 1, 2, 4,
+        5, 3, 2, 1, 2, 3, 5,
+        7, 5, 3, 2, 3, 5, 6] ],
+    [ [20,17,14,11,13,16,19,
+       15,13, 9, 7,10,14,16,
+       12, 9, 5, 3, 6,10,13,
+       16,12, 9, 7, 9,13,15,
+       19,17,13,11,14,16,20],
+      [ 7, 5, 3, 2, 3, 5, 6,
+        5, 3, 2, 1, 2, 3, 4,
+        3, 2, 1, 1, 1, 2, 3,
+        4, 3, 2, 1, 2, 3, 5,
+        6, 5, 3, 2, 3, 4, 7] ],
+  ];
+
+  const HOME = 17; // centre of the 7x5 grid
+
+  const makeGrid = ranks => {
+    const g = document.createElement('div');
+    g.className = 'mapgrid';
+    g.appendChild(heroMap.cloneNode(true));
+    ranks.forEach((r, i) => {
+      const node = document.createElement('div');
+      node.className = 'node ' + (r <= 3 ? 'n-good' : r <= 7 ? 'n-mid' : 'n-bad')
+                     + (i === HOME ? ' is-home' : '');
+      const pin = document.createElement('div');
+      pin.className = 'pin';
+      const num = document.createElement('span');
+      num.textContent = r;
+      pin.appendChild(num);
+      node.appendChild(pin);
+      g.appendChild(node);
+    });
+    return g;
+  };
+
+  document.querySelectorAll('.ba').forEach(el => {
+    const [before, after] = BA_DATA[+el.dataset.ba] || BA_DATA[0];
+
+    const base = document.createElement('div');
+    base.className = 'ba-after';
+    base.appendChild(makeGrid(after));
+
+    const top = document.createElement('div');
+    top.className = 'ba-before';
+    top.appendChild(makeGrid(before));
+
+    const line = document.createElement('div');
+    line.className = 'ba-line';
+    const grip = document.createElement('div');
+    grip.className = 'ba-grip';
+    grip.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 6l-5 6 5 6M15 6l5 6-5 6"/></svg>';
+
+    const tagB = document.createElement('span');
+    tagB.className = 'ba-tag before'; tagB.textContent = 'BEFORE';
+    const tagA = document.createElement('span');
+    tagA.className = 'ba-tag after'; tagA.textContent = 'AFTER';
+
+    el.append(base, top, line, grip, tagB, tagA);
+
+    const set = p => {
+      p = Math.max(0, Math.min(100, p));
+      top.style.clipPath = 'inset(0 ' + (100 - p) + '% 0 0)';
+      line.style.left = p + '%';
+      grip.style.left = p + '%';
+      // only the label for what's actually visible
+      tagB.style.opacity = p > 12 ? 1 : 0;
+      tagA.style.opacity = p < 88 ? 1 : 0;
+    };
+
+    // starts fully "before"; the scroll drive below sweeps it green.
+    // reduced motion gets a static half-half split instead.
+    const inst = { el, set, user: false, pos: still ? 50 : 100 };
+    bas.push(inst);
+    set(inst.pos);
+
+    el.addEventListener('pointerdown', e => {
+      inst.user = true;              // hand over control once they touch it
+      el.setPointerCapture(e.pointerId);
+      const move = ev => {
+        const r = el.getBoundingClientRect();
+        set((ev.clientX - r.left) / r.width * 100);
+      };
+      move(e);
+      el.addEventListener('pointermove', move);
+      el.addEventListener('pointerup', () => el.removeEventListener('pointermove', move), { once: true });
+    });
+  });
+
+  /* scroll-linked reveal: scroll position sets the TARGET, and the
+     handle chases it at a capped speed - so a violent scroll can't
+     snap the wipe; it keeps gliding after the scroll stops. Dragging
+     a card takes it out of the drive. */
+  if (!still) {
+    const MAX_SPEED = 80;                 // % of the card per second
+    let raf = null, last = 0;
+    const tick = now => {
+      raf = null;
+      const dt = Math.min((now - last) / 1000, .05);
+      last = now;
+      const vh = innerHeight;
+      let active = false;
+      bas.forEach(b => {
+        if (b.user) return;
+        const r = b.el.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > vh) return;
+        const start = vh * .88, end = vh * .38;
+        const t = Math.max(0, Math.min(1, (start - r.top) / (start - end)));
+        const target = 100 - t * 100;
+        const diff = target - b.pos;
+        if (Math.abs(diff) > .1) {
+          const step = MAX_SPEED * dt;
+          b.pos += Math.abs(diff) <= step ? diff : Math.sign(diff) * step;
+          b.set(b.pos);
+          active = true;
+        }
+      });
+      if (active) raf = requestAnimationFrame(tick);
+    };
+    const kick = () => {
+      if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
+    };
+    addEventListener('scroll', kick, { passive: true });
+    addEventListener('resize', kick, { passive: true });
+    kick();
+  }
+})();
+
+/* ── In-page links scroll explicitly ──────────────────────────────
+   Plain fragment anchors break in some embedded/preview contexts,
+   so every #-link (nav, CTAs, footer) scrolls via script instead. */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const id = a.getAttribute('href').slice(1);
+    const el = id && document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+/* ── Two-step application form ──────────────────────────────────── */
+(() => {
+  const form = document.getElementById('auditForm');
+  if (!form) return;
+  const steps = [...form.querySelectorAll('.qstep')];
+  const dots  = [...form.querySelectorAll('.qdot')];
+  const site  = form.querySelector('#website');
+
+  const go = i => {
+    steps.forEach((s, n) => s.hidden = n !== i);
+    dots.forEach((d, n) => d.classList.toggle('on', n <= i));
+    const focusable = steps[i].querySelector('input');
+    if (focusable) focusable.focus({ preventScroll: true });
+  };
+
+  form.querySelector('.qnext').addEventListener('click', () => {
+    if (!site.value.trim()) { site.focus(); return; }
+    go(1);
+  });
+  form.querySelector('.qback').addEventListener('click', () => go(0));
+
+  site.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); form.querySelector('.qnext').click(); }
+  });
+})();
+
+/* ── Founder stats: count up when scrolled into view ──────────────
+   The markup already holds the final text, so with JS off (or reduced
+   motion on) the numbers simply sit there fully formed.            */
+(() => {
+  const wrap = document.getElementById('founderStats');
+  if (!wrap) return;
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const nums = [...wrap.querySelectorAll('b[data-count]')];
+
+  const run = (el, delay) => {
+    const target = +el.dataset.count;
+    const pre = el.dataset.prefix || '', suf = el.dataset.suffix || '';
+    const t0 = performance.now() + delay;
+    const DUR = 1300;
+    const tick = now => {
+      const p = Math.min(1, Math.max(0, (now - t0) / DUR));
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = pre + Math.round(target * eased) + suf;
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    el.textContent = pre + '0' + suf;
+    requestAnimationFrame(tick);
+  };
+
+  new IntersectionObserver((es, o) => {
+    if (!es[0].isIntersecting) return;
+    o.disconnect();
+    if (still) return;                       // final text is already in place
+    nums.forEach((el, i) => run(el, i * 140));
+  }, { threshold: .5 }).observe(wrap);
+})();
+
+</script>
+
+</body>
+</html>

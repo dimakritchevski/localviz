@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Google Maps Audit | LocalViz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   OPT-IN PAGE - same design system as index-tool.html.
+   One job: get the audit application. No nav, no other exits.
+   ═══════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#0B1524;
+  --body:#46556B;
+  --muted:#71809A;
+  --line:#E4E8EE;
+  --line-2:#CBD3DE;
+  --bg:#FFFFFF;
+  --bg-alt:#F7F9FB;
+  --cta:#D95C05; --cta-ink:#FFFFFF;
+  /* navy system from index-navy.html */
+  --navy:#233566; --navy-deep:#182644; --accent:#3A4CC0;
+  --win:#22B368; --warn:#F0B428; --lose:#E85560;
+  --win-dk:#177A48; --lose-dk:#C02F3A;
+  --shadow:0 1px 2px rgba(11,21,36,.05),0 14px 34px -14px rgba(11,21,36,.14);
+  --maxw:1140px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+/* keep scrolled-to targets clear of the sticky header */
+[id]{scroll-margin-top:80px}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.5;
+  background:var(--bg);color:var(--ink);overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+/* the rank scale as a rule across the top - same as the main page */
+.top-rule{
+  height:4px;
+  background:linear-gradient(90deg,
+    var(--lose) 0 26%, var(--warn) 26% 56%, var(--win) 56% 100%);
+}
+
+/* ── Header - same as the main page ───────────────────────────── */
+header{
+  position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--line);
+  box-shadow:0 2px 10px rgba(11,21,36,.07);
+}
+/* no orange glow in the header - the glow is for in-page CTAs */
+header .btn-cta{box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+header .btn-cta:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:19px;letter-spacing:-.02em;line-height:1;white-space:nowrap}
+.brand svg{width:23px;height:23px;flex:none;display:block}
+.brand .b1{fill:#E85560}
+.brand .b2{fill:#F0B428}
+.brand .b3{fill:var(--win)}
+.nav-links{display:flex;align-items:center;gap:8px}
+.nav-links a{
+  font-size:14.5px;font-weight:500;color:var(--body);
+  padding:8px 14px;border-radius:8px;transition:background .15s,color .15s;
+}
+.nav-links a:hover{background:var(--bg-alt);color:var(--ink)}
+
+/* ── Buttons - same confident CTAs as the main page ───────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-weight:600;font-size:15px;border-radius:10px;padding:12px 20px;
+  white-space:nowrap;cursor:pointer;border:0;font-family:inherit;
+  transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s,background .15s;
+}
+.btn-cta{
+  background:linear-gradient(175deg,#F0801F,#DB5F05 58%,#B84A02);
+  color:var(--cta-ink);
+  text-shadow:0 1px 2px rgba(105,38,0,.6);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4);
+}
+.btn-cta:hover{
+  transform:translateY(-2px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4);
+}
+.btn-lg{padding:15px 26px;font-size:16px;border-radius:14px}
+@media (prefers-reduced-motion:reduce){
+  .btn{transition:background .15s}
+  .btn-cta:hover{transform:none}
+}
+
+/* ── Hero ─────────────────────────────────────────────────────── */
+.hero{
+  padding:56px 0 64px;text-align:center;color:#fff;
+  /* navy banner with the faint map grid, same as the homepage hero */
+  background-color:var(--navy);
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:44px 44px;
+}
+.hero h1{color:#fff}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;
+  font-size:12.5px;font-weight:600;letter-spacing:.02em;color:var(--body);
+  background:var(--bg);border:1px solid var(--line-2);border-radius:999px;padding:8px 16px;
+}
+.hero-badge i{width:7px;height:7px;border-radius:50%;background:var(--win-dk);flex:none}
+h1{
+  font-size:clamp(30px,3.8vw,46px);line-height:1.12;letter-spacing:-.025em;
+  font-weight:700;max-width:920px;margin:0 auto 18px;text-wrap:balance;
+}
+/* same serif-italic signature as the homepage hero. nowrap so
+   "Top 3" can never be split across two lines */
+h1 .hl{
+  font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400;
+  font-size:1.06em;color:#F0801F;white-space:nowrap;
+}
+.lede{font-size:17.5px;line-height:1.6;color:#C3CCE7;max-width:640px;margin:0 auto 34px}
+.lede b{color:#fff;font-weight:600}
+
+/* video placeholder - swap for the real embed */
+.vsl{
+  position:relative;aspect-ratio:16/9;max-width:760px;margin:0 auto 30px;
+  border-radius:14px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.12);
+  background:var(--navy-deep);
+  display:grid;place-items:center;text-align:center;padding:28px;
+  box-shadow:0 2px 4px rgba(11,21,36,.12),0 18px 44px -16px rgba(11,21,36,.45);
+}
+.vsl .ph{align-self:end;font-size:11px;letter-spacing:.06em;color:#9BA7CC;line-height:1.8;text-transform:uppercase}
+.play{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:64px;height:64px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(175deg,#F0801F,#DB5F05 58%,#B84A02);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+}
+.play::after{
+  content:"";margin-left:5px;
+  border-left:17px solid #fff;border-top:11px solid transparent;border-bottom:11px solid transparent;
+}
+.hero .microcopy{margin-top:16px;color:#9BA7CC}
+.microcopy{font-size:13.5px;color:var(--muted);line-height:1.6}
+
+/* ── Trust bar - a step darker than the hero, same as the homepage ── */
+/* a slow marquee at every size - roughly three stats visible on
+   desktop, two on mobile, always drifting */
+.trustbar{background:var(--navy-deep);padding:22px 0}
+.trustbar-viewport{
+  max-width:var(--maxw);margin:0 auto;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+}
+.tb-track{display:flex;align-items:center;width:max-content;animation:tbmq 34s linear infinite}
+.trustbar:hover .tb-track{animation-play-state:paused}
+.tb-item{display:flex;align-items:baseline;gap:10px;white-space:nowrap;padding:0 64px;position:relative}
+.tb-item + .tb-item::before{
+  content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:1px;height:24px;background:rgba(255,255,255,.14);
+}
+.tb-item b{font-size:18px;font-weight:700;letter-spacing:.01em;text-transform:uppercase;color:#fff;font-variant-numeric:tabular-nums}
+.tb-item span{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;
+  color:#8B98BF;
+}
+@media (max-width:820px){
+  .tb-track{animation-duration:24s}
+  .tb-item{padding:0 18px}
+  .tb-item b{font-size:16.5px}
+  .tb-item span{font-size:10px}
+}
+@keyframes tbmq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){
+  .tb-track{animation:none}
+  .trustbar-viewport{overflow-x:auto}
+}
+
+/* ── Application ──────────────────────────────────────────────── */
+.apply{padding:72px 0}
+.apply-head{text-align:center;max-width:640px;margin:0 auto 44px}
+h2{font-size:clamp(26px,3vw,34px);line-height:1.15;letter-spacing:-.022em;font-weight:700;text-wrap:balance}
+.apply-head p{font-size:16px;color:var(--body);margin-top:12px}
+.apply-inner{display:grid;grid-template-columns:1fr .95fr;gap:48px;align-items:start;max-width:1000px;margin:0 auto}
+
+/* the application form - dark so it's the loudest thing on the page,
+   with the same faint map grid as the homepage's dark surfaces */
+.qform{
+  background-color:var(--navy);border-radius:14px;padding:28px;
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:44px 44px;
+  box-shadow:0 2px 4px rgba(11,21,36,.12),0 18px 44px -16px rgba(11,21,36,.45);
+}
+.qdots{display:flex;gap:6px;margin-bottom:22px}
+.qdot{width:26px;height:3px;border-radius:2px;background:rgba(255,255,255,.18);transition:background .3s}
+.qdot.on{background:var(--cta)}
+.qlabel{display:block;font-size:17px;font-weight:600;letter-spacing:-.012em;margin-bottom:13px;color:#fff}
+.qfields{display:flex;flex-direction:column;gap:10px}
+.qform input,.qform textarea{
+  width:100%;font-family:inherit;font-size:15.5px;color:var(--ink);
+  background:var(--bg);border:1px solid var(--line-2);border-radius:8px;padding:13px 14px;
+  transition:border-color .15s;
+}
+.qform textarea{resize:vertical;min-height:70px}
+.qform input::placeholder,.qform textarea::placeholder{color:var(--muted)}
+.qform input:focus,.qform textarea:focus{outline:none;border-color:var(--ink)}
+.qhint{font-size:12.5px;color:#9BA7CC;line-height:1.55;margin-top:10px}
+.qstep .btn{margin-top:20px;width:100%}
+.qback{
+  display:block;margin:13px auto 0;background:none;border:0;cursor:pointer;
+  font-family:inherit;font-size:13px;color:#9BA7CC;
+}
+.qback:hover{color:#fff}
+.qmeta{
+  margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.12);
+  font-size:12px;line-height:1.6;color:#9BA7CC;text-align:center;
+}
+
+/* what the audit includes */
+.includes h3{font-size:19px;font-weight:700;letter-spacing:-.015em;margin-bottom:20px}
+.checks{list-style:none;display:flex;flex-direction:column;gap:14px}
+.checks li{display:flex;align-items:flex-start;gap:11px;font-size:15px;line-height:1.5;color:var(--ink)}
+.checks li b{font-weight:600}
+.checks .m{
+  flex:none;width:21px;height:21px;border-radius:50%;margin-top:2px;
+  background:#E5F5EC;display:grid;place-items:center;
+}
+.checks .m svg{width:11px;height:11px;stroke:var(--win-dk);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.note{
+  margin-top:24px;background:var(--bg-alt);border:1px solid var(--line);
+  border-radius:10px;padding:18px 20px;font-size:14px;line-height:1.6;color:var(--body);
+}
+.note b{color:var(--ink);font-weight:600}
+
+/* ── Footer - dark navy with the grid, same as the main page ──── */
+footer{
+  padding:56px 0 36px;color:#C3CCE7;
+  background-color:#182644;
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:44px 44px;
+}
+footer .brand{color:#fff}
+.foot-top{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:40px;padding-bottom:34px}
+.foot-about{max-width:340px}
+.foot-about .brand{font-size:17px;gap:8px;margin-bottom:14px}
+.foot-about .brand svg{width:20px;height:20px}
+.foot-about p{font-size:13.5px;line-height:1.6;color:#9BA7CC;margin-top:12px}
+.foot-col h3{
+  font-size:11px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:#9BA7CC;margin-bottom:16px;
+}
+.foot-col ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.foot-col a{font-size:14.5px;color:#C3CCE7}
+.foot-col a:hover{color:#fff}
+.foot-bottom{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:36px;
+  padding-top:24px;border-top:1px solid rgba(255,255,255,.14);
+}
+.foot-bottom p{font-size:12.5px;color:#9BA7CC;line-height:1.65}
+.foot-legal{max-width:620px;text-align:right}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width:900px){
+  .apply-inner{grid-template-columns:1fr;gap:36px}
+}
+@media (max-width:1080px){
+  .nav-links{display:none}
+}
+@media (max-width:820px){
+  .wrap{padding:0 20px}
+  .hero{padding:40px 0 48px}
+  .apply{padding:52px 0}
+  .btn-lg{width:100%}
+  .nav{height:58px}
+  .nav .btn{font-size:12.5px;padding:10px 14px;gap:6px}
+  .foot-top{grid-template-columns:1fr;gap:32px}
+  .foot-about{max-width:none}
+  .foot-bottom{flex-direction:column;gap:16px}
+  .foot-legal{text-align:left;max-width:none}
+}
+@media (max-width:400px){
+  .brand{font-size:16px;gap:7px}
+  .brand svg{width:19px;height:19px}
+  .nav .btn{font-size:12px;padding:9px 12px}
+}
+</style>
+</head>
+<body>
+
+<div class="top-rule"></div>
+
+<header>
+  <div class="wrap nav">
+    <a href="/" class="brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect class="b1" x="1" y="15" width="6" height="8" rx="2"/>
+        <rect class="b2" x="9" y="9" width="6" height="14" rx="2"/>
+        <rect class="b3" x="17" y="1" width="6" height="22" rx="2"/>
+      </svg>LocalViz</a>
+    <nav class="nav-links">
+      <a href="/#results">Results</a>
+      <a href="/#how">How it works</a>
+      <a href="/#who">Who it's for</a>
+    </nav>
+    <a href="#apply" class="btn btn-cta">Free audit &amp; proposal</a>
+  </div>
+</header>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="wrap">
+    <h1>Get a Free Audit to Rank <span class="hl">Top 3</span> on Google Maps &amp; AI Search</h1>
+
+    <p class="lede">Google Maps and AI tools now send most customers to the same <b>three names</b>. Your audit shows exactly where you stand in every suburb you serve, and what it would take to crack the top three.</p>
+
+    <!-- swap this block for the real video embed -->
+    <div class="vsl">
+      <span class="ph">VIDEO &middot; Dima walking through a real audit: the map grid, the AI results, the gaps</span>
+      <span class="play" aria-hidden="true"></span>
+    </div>
+
+    <a href="#apply" class="btn btn-cta btn-lg">Get my free audit &amp; proposal</a>
+    <p class="microcopy">Takes 2 minutes. No commitment, no call required.</p>
+  </div>
+</section>
+
+<!-- ══ TRUST BAR ═════════════════════════════════════════════════ -->
+<div class="trustbar">
+  <div class="trustbar-viewport">
+    <div class="tb-track">
+      <div class="tb-item"><b>15+ yrs</b><span>Digital marketing</span></div>
+      <div class="tb-item"><b>120+</b><span>Businesses helped</span></div>
+      <div class="tb-item"><b>100k+</b><span>Leads and calls generated</span></div>
+      <div class="tb-item"><b>$100m+</b><span>Client revenue added</span></div>
+      <div class="tb-item tb-dup" aria-hidden="true"><b>15+ yrs</b><span>Digital marketing</span></div>
+      <div class="tb-item tb-dup" aria-hidden="true"><b>120+</b><span>Businesses helped</span></div>
+      <div class="tb-item tb-dup" aria-hidden="true"><b>100k+</b><span>Leads and calls generated</span></div>
+      <div class="tb-item tb-dup" aria-hidden="true"><b>$100m+</b><span>Client revenue added</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APPLICATION ═══════════════════════════════════════════════ -->
+<section class="apply" id="apply">
+  <div class="wrap">
+    <div class="apply-head">
+      <h2>Request Your Free Audit &amp; Proposal</h2>
+      <p>A couple of quick questions so we can pull up your market.</p>
+    </div>
+
+    <div class="apply-inner">
+      <!-- form endpoint not wired - point action at your handler before launch -->
+      <form class="qform" id="auditForm" action="#" method="post">
+        <div class="qdots" aria-hidden="true"><span class="qdot on"></span><span class="qdot"></span></div>
+
+        <div class="qstep" data-step="1">
+          <label class="qlabel" for="website">What's your website?</label>
+          <input id="website" name="website" type="text" inputmode="url" placeholder="yourbusiness.com.au" autocomplete="url" required>
+          <p class="qhint">That's all we need to start. We'll find your Google profile, categories and service area from there.</p>
+          <button type="button" class="btn btn-cta btn-lg qnext">Next</button>
+        </div>
+
+        <div class="qstep" data-step="2" hidden>
+          <label class="qlabel" for="fname">Where should we send it?</label>
+          <div class="qfields">
+            <input id="fname" name="fname" type="text" placeholder="First name" autocomplete="given-name" required>
+            <input id="email" name="email" type="email" placeholder="Business email" autocomplete="email" required>
+            <textarea id="notes" name="notes" placeholder="Anything we should know? (optional)"></textarea>
+          </div>
+          <button type="submit" class="btn btn-cta btn-lg">Send me my free audit &amp; proposal</button>
+          <button type="button" class="qback">&larr; Back</button>
+        </div>
+
+        <p class="qmeta">We review every application and reply to strong fits within 2 business days with a video audit, a clear plan and a fixed price.</p>
+      </form>
+
+      <div class="includes">
+        <h3>What your free audit includes</h3>
+        <ul class="checks">
+          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span><span><b>Your rankings, mapped.</b> Where you actually rank across every suburb you serve, on our 35-point map grid.</span></li>
+          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span><span><b>Your AI visibility.</b> Whether ChatGPT and Google's AI results recommend you, or your competitors.</span></li>
+          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span><span><b>Who's taking your calls.</b> The businesses ranking above you, and what those spots are worth in enquiries.</span></li>
+          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></span><span><b>A recorded video walkthrough.</b> Dima talks you through the findings, then a clear plan and fixed price by email.</span></li>
+        </ul>
+
+        <div class="note">
+          <b>No call required.</b> Everything arrives by email within 2 business days, and the findings are yours whether we work together or not. Rather talk it through? You can book a call after you apply.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-about">
+        <span class="brand">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect class="b1" x="1" y="15" width="6" height="8" rx="2"/>
+            <rect class="b2" x="9" y="9" width="6" height="14" rx="2"/>
+            <rect class="b3" x="17" y="1" width="6" height="22" rx="2"/>
+          </svg>LocalViz</span>
+        <p>Google Maps optimisation for established local service businesses. We get you found across every suburb you serve, not just the one you're standing in.</p>
+      </div>
+
+      <nav class="foot-col">
+        <h3>Explore</h3>
+        <ul>
+          <li><a href="/#results">Results</a></li>
+          <li><a href="/#how">How it works</a></li>
+          <li><a href="/#who">Who it's for</a></li>
+          <li><a href="#apply">Request audit</a></li>
+        </ul>
+      </nav>
+
+      <div class="foot-col">
+        <h3>Get in touch</h3>
+        <ul>
+          <li><a href="mailto:hello@localviz.com.au">hello@localviz.com.au</a></li>
+          <li><a href="/privacy">Privacy policy</a></li>
+          <li><a href="/terms">Terms of service</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot-bottom">
+      <p>&copy; 2026 LocalViz &middot; Australia</p>
+      <p class="foot-legal">Rankings vary by market, competition and starting position, and specific Google positions are not guaranteed. The performance guarantee is offered case by case following an audit, on the terms set out in your proposal. LocalViz is not affiliated with or endorsed by Google.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── In-page links scroll explicitly ──────────────────────────────
+   Plain fragment anchors break in some embedded/preview contexts,
+   so every #-link scrolls via script instead.                     */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const id = a.getAttribute('href').slice(1);
+    const el = id && document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+/* ── Two-step application: website first, details second ───────── */
+(() => {
+  const form = document.getElementById('auditForm');
+  if (!form) return;
+  const steps = [...form.querySelectorAll('.qstep')];
+  const dots  = [...form.querySelectorAll('.qdot')];
+  const site  = form.querySelector('#website');
+
+  const go = i => {
+    steps.forEach((s, n) => s.hidden = n !== i);
+    dots.forEach((d, n) => d.classList.toggle('on', n <= i));
+    const focusable = steps[i].querySelector('input');
+    if (focusable) focusable.focus({ preventScroll: true });
+  };
+
+  form.querySelector('.qnext').addEventListener('click', () => {
+    if (!site.value.trim()) { site.focus(); return; }
+    go(1);
+  });
+  form.querySelector('.qback').addEventListener('click', () => go(0));
+
+  site.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); form.querySelector('.qnext').click(); }
+  });
+})();
+</script>
+
+</body>
+</html>
