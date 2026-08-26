@@ -437,7 +437,7 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
 }
 /* each slider carries its business's real service area (OSM, washed out) */
 .ba[data-ba="0"] .mapgrid{background-image:url('images/map-capstone.jpg')}
-.ba[data-ba="1"] .mapgrid{background-image:url('images/map-aditum.jpg')}
+.ba[data-ba="1"] .mapgrid{background-image:url('images/map-joshsmith.jpg')}
 .ba[data-ba="2"] .mapgrid{background-image:url('images/map-abrecycling.jpg')}
 /* outside the top three: a quiet dot instead of a coloured pin */
 .dot-blank{width:7px;height:7px;border-radius:50%;background:rgba(11,21,36,.22);box-shadow:0 0 0 2px rgba(255,255,255,.7)}
@@ -1023,25 +1023,23 @@ footer .brand{color:#fff}
         <div class="rcard-head">
           <span class="rcard-logo"><img src="images/logo-capstone.png" alt="Capstone Tiling logo"></span>
           <span class="rcard-name">Capstone Tiling</span>
-          <span class="rcard-chip">Tiling · Melbourne</span>
         </div>
         <div class="rcard-metric"><span class="from">[9]</span> <span class="from">→</span> <span class="to">[34]</span></div>
         <p class="rcard-cap">Calls a month from Google</p>
         <p class="rcard-story">[Was invisible outside his own suburb. Now top three across [8] of the [9] suburbs he services, and he's hired two more guys to keep up.]</p>
-        <div class="rcard-foot"><span>Results in 6 months</span></div>
+        <div class="rcard-foot"><span>Results in 6 months</span><span class="rcard-chip">Tiling · Melbourne</span></div>
       </div>
 
       <div class="rcard tbd">
         <div class="ba" data-ba="1" aria-label="Google Maps rankings improving month by month"></div>
         <div class="rcard-head">
-          <span class="rcard-logo"><img src="images/logo-aditum.png" alt="Aditum Lawyers logo"></span>
-          <span class="rcard-name">Aditum Lawyers</span>
-          <span class="rcard-chip">Legal · Gold Coast</span>
+          <span class="rcard-logo fill"><img src="images/logo-joshsmith.png" alt="Josh Smith Legal logo"></span>
+          <span class="rcard-name">Josh Smith Legal</span>
         </div>
         <div class="rcard-metric"><span class="from">[1]</span> <span class="from">→</span> <span class="to">[7] of [9]</span></div>
         <p class="rcard-cap">Suburbs ranked in the top three</p>
         <p class="rcard-story">[New patients used to come from one suburb. Now the books are full across the whole east side, and they've added a second hygienist.]</p>
-        <div class="rcard-foot"><span>Results in 5 months</span></div>
+        <div class="rcard-foot"><span>Results in 5 months</span><span class="rcard-chip">Legal · Melbourne</span></div>
       </div>
 
       <div class="rcard tbd">
@@ -1049,12 +1047,11 @@ footer .brand{color:#fff}
         <div class="rcard-head">
           <span class="rcard-logo"><img src="images/logo-abrecycling.png" alt="AB Recycling logo"></span>
           <span class="rcard-name">AB Recycling</span>
-          <span class="rcard-chip">Recycling · Melbourne</span>
         </div>
         <div class="rcard-metric"><span class="from">[21]</span> <span class="from">→</span> <span class="to">[64]</span></div>
         <p class="rcard-cap">Enquiries a month from Google</p>
         <p class="rcard-story">[Used to rely on referrals alone. Now turns away work in tax season, and has put on a second accountant.]</p>
-        <div class="rcard-foot"><span>Results in 4 months</span></div>
+        <div class="rcard-foot"><span>Results in 4 months</span><span class="rcard-chip">Recycling · Melbourne</span></div>
       </div>
     </div>
 
@@ -1656,7 +1653,7 @@ footer .brand{color:#fff}
   // cells that sit on water in each card's map - nothing renders there
   const WATER = [
     [1,1,0,0,0,0,0, 1,1,1,0,0,0,0, 1,1,1,0,0,0,0, 1,1,1,0,0,0,0, 1,1,1,0,0,0,0],
-    [0,0,0,1,0,1,1, 0,0,0,1,0,1,1, 0,0,0,0,0,1,1, 0,0,0,0,0,1,1, 0,0,0,0,0,1,1],
+    [0,0,0,0,0,0,0, 0,0,0,0,0,0,0, 0,0,0,0,0,0,0, 0,0,0,0,0,0,0, 0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0, 0,0,0,0,0,0,0, 0,0,0,0,0,0,0, 0,0,0,0,0,0,0, 0,0,0,0,0,0,0],
   ];
 
