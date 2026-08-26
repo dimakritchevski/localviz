@@ -484,9 +484,11 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
   background-color:var(--navy);
 }
 /* the gap above the dark bar (margin) and below it should roughly
-   match. How It Works is white too now, so its top padding counts
-   toward the same gap - both halves stay small. */
+   match. Who This Is For follows on white, so its top padding counts
+   toward the same gap - both halves stay small, and the same rhythm
+   carries into How It Works below it. */
 #results{padding-bottom:28px}
+#who{padding-top:28px;padding-bottom:28px}
 #how{padding-top:28px}
 /* client voice and the case study are both white now - halve the gap
    between them, same treatment as results into how-it-works */
@@ -1013,6 +1015,58 @@ footer .brand{color:#fff}
   </div>
 </section>
 
+<!-- ══ WHO THIS IS FOR ═══════════════════════════════════════════
+     Sits directly after the results proof on purpose - qualify the
+     reader early, and the marquee shows people their own trade
+     while the wins above are still fresh.
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="who">
+  <div class="wrap who-inner">
+    <div>
+      <div class="sec-head">
+        <span class="eyebrow">Who this is for</span>
+        <h2>Local Businesses With<br>a Service Worth Finding</h2>
+        <p>Established businesses that serve a defined local market, where a new customer is worth hundreds or thousands of dollars, whether that's a single job or years of repeat visits.</p>
+      </div>
+
+      <div class="notfor panel">
+        <b>This isn't for you if:</b>
+        <ul class="checks no">
+          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></span>You expect guaranteed top-three rankings in a few weeks.</li>
+          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></span>You're unwilling to let us request reviews from your happy customers.</li>
+          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></span>Your business can't reliably handle more enquiries.</li>
+          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></span>You want reports and meetings instead of implementation.</li>
+        </ul>
+      </div>
+
+      <div class="cta-row"><a href="#apply" class="btn btn-cta btn-lg">Get my free audit &amp; proposal</a></div>
+    </div>
+
+    <!-- rows drift in opposite directions; each list is duplicated so the
+         -50% translate loops seamlessly -->
+    <div class="marquee">
+      <div class="mq-row">
+        <div class="mq-track">
+          <span class="mq-card"><i></i>Plumbers</span><span class="mq-card"><i></i>Electricians</span><span class="mq-card"><i></i>Roofers</span><span class="mq-card"><i></i>Builders</span><span class="mq-card"><i></i>Dentists</span><span class="mq-card"><i></i>Vets</span><span class="mq-card"><i></i>Mechanics</span><span class="mq-card"><i></i>Physios</span><span class="mq-card"><i></i>Accountants</span>
+          <span class="mq-card"><i></i>Plumbers</span><span class="mq-card"><i></i>Electricians</span><span class="mq-card"><i></i>Roofers</span><span class="mq-card"><i></i>Builders</span><span class="mq-card"><i></i>Dentists</span><span class="mq-card"><i></i>Vets</span><span class="mq-card"><i></i>Mechanics</span><span class="mq-card"><i></i>Physios</span><span class="mq-card"><i></i>Accountants</span>
+        </div>
+      </div>
+      <div class="mq-row">
+        <div class="mq-track rev">
+          <span class="mq-card"><i></i>Cosmetic clinics</span><span class="mq-card"><i></i>Conveyancers</span><span class="mq-card"><i></i>Landscapers</span><span class="mq-card"><i></i>Mortgage brokers</span><span class="mq-card"><i></i>Pest control</span><span class="mq-card"><i></i>Removalists</span><span class="mq-card"><i></i>Panel beaters</span><span class="mq-card"><i></i>Lawyers</span><span class="mq-card"><i></i>Locksmiths</span>
+          <span class="mq-card"><i></i>Cosmetic clinics</span><span class="mq-card"><i></i>Conveyancers</span><span class="mq-card"><i></i>Landscapers</span><span class="mq-card"><i></i>Mortgage brokers</span><span class="mq-card"><i></i>Pest control</span><span class="mq-card"><i></i>Removalists</span><span class="mq-card"><i></i>Panel beaters</span><span class="mq-card"><i></i>Lawyers</span><span class="mq-card"><i></i>Locksmiths</span>
+        </div>
+      </div>
+      <div class="mq-row">
+        <div class="mq-track slow">
+          <span class="mq-card"><i></i>Painters</span><span class="mq-card"><i></i>Concreters</span><span class="mq-card"><i></i>Tilers</span><span class="mq-card"><i></i>Arborists</span><span class="mq-card"><i></i>Cleaning companies</span><span class="mq-card"><i></i>Glaziers</span><span class="mq-card"><i></i>Chiropractors</span><span class="mq-card"><i></i>Podiatrists</span><span class="mq-card"><i></i>Solar installers</span>
+          <span class="mq-card"><i></i>Painters</span><span class="mq-card"><i></i>Concreters</span><span class="mq-card"><i></i>Tilers</span><span class="mq-card"><i></i>Arborists</span><span class="mq-card"><i></i>Cleaning companies</span><span class="mq-card"><i></i>Glaziers</span><span class="mq-card"><i></i>Chiropractors</span><span class="mq-card"><i></i>Podiatrists</span><span class="mq-card"><i></i>Solar installers</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ══ HOW IT WORKS ══════════════════════════════════════════════ -->
 <section id="how">
   <div class="wrap">
@@ -1173,58 +1227,6 @@ footer .brand{color:#fff}
       <div class="get-role">
         <b>Your role</b>
         <p>Deliver great service, let our system ask for reviews, and send us the occasional photo. We handle the rest, and there are no calls unless you want one.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ WHO THIS IS FOR ═══════════════════════════════════════════
-     Sits directly above the application form on purpose - it's the
-     qualifying step, and the marquee shows people their own trade
-     seconds before they're asked to apply.
-     ═══════════════════════════════════════════════════════════════ -->
-<section id="who">
-  <div class="wrap who-inner">
-    <div>
-      <div class="sec-head">
-        <span class="eyebrow">Who this is for</span>
-        <h2>Local Businesses With<br>a Service Worth Finding</h2>
-        <p>Established businesses that serve a defined local market, where a new customer is worth hundreds or thousands of dollars, whether that's a single job or years of repeat visits.</p>
-      </div>
-
-      <div class="notfor panel">
-        <b>This isn't for you if:</b>
-        <ul class="checks no">
-          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></span>You expect guaranteed top-three rankings in a few weeks.</li>
-          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></span>You're unwilling to let us request reviews from your happy customers.</li>
-          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></span>Your business can't reliably handle more enquiries.</li>
-          <li><span class="m"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></span>You want reports and meetings instead of implementation.</li>
-        </ul>
-      </div>
-
-      <div class="cta-row"><a href="#apply" class="btn btn-cta btn-lg">Get my free audit &amp; proposal</a></div>
-    </div>
-
-    <!-- rows drift in opposite directions; each list is duplicated so the
-         -50% translate loops seamlessly -->
-    <div class="marquee">
-      <div class="mq-row">
-        <div class="mq-track">
-          <span class="mq-card"><i></i>Plumbers</span><span class="mq-card"><i></i>Electricians</span><span class="mq-card"><i></i>Roofers</span><span class="mq-card"><i></i>Builders</span><span class="mq-card"><i></i>Dentists</span><span class="mq-card"><i></i>Vets</span><span class="mq-card"><i></i>Mechanics</span><span class="mq-card"><i></i>Physios</span><span class="mq-card"><i></i>Accountants</span>
-          <span class="mq-card"><i></i>Plumbers</span><span class="mq-card"><i></i>Electricians</span><span class="mq-card"><i></i>Roofers</span><span class="mq-card"><i></i>Builders</span><span class="mq-card"><i></i>Dentists</span><span class="mq-card"><i></i>Vets</span><span class="mq-card"><i></i>Mechanics</span><span class="mq-card"><i></i>Physios</span><span class="mq-card"><i></i>Accountants</span>
-        </div>
-      </div>
-      <div class="mq-row">
-        <div class="mq-track rev">
-          <span class="mq-card"><i></i>Cosmetic clinics</span><span class="mq-card"><i></i>Conveyancers</span><span class="mq-card"><i></i>Landscapers</span><span class="mq-card"><i></i>Mortgage brokers</span><span class="mq-card"><i></i>Pest control</span><span class="mq-card"><i></i>Removalists</span><span class="mq-card"><i></i>Panel beaters</span><span class="mq-card"><i></i>Lawyers</span><span class="mq-card"><i></i>Locksmiths</span>
-          <span class="mq-card"><i></i>Cosmetic clinics</span><span class="mq-card"><i></i>Conveyancers</span><span class="mq-card"><i></i>Landscapers</span><span class="mq-card"><i></i>Mortgage brokers</span><span class="mq-card"><i></i>Pest control</span><span class="mq-card"><i></i>Removalists</span><span class="mq-card"><i></i>Panel beaters</span><span class="mq-card"><i></i>Lawyers</span><span class="mq-card"><i></i>Locksmiths</span>
-        </div>
-      </div>
-      <div class="mq-row">
-        <div class="mq-track slow">
-          <span class="mq-card"><i></i>Painters</span><span class="mq-card"><i></i>Concreters</span><span class="mq-card"><i></i>Tilers</span><span class="mq-card"><i></i>Arborists</span><span class="mq-card"><i></i>Cleaning companies</span><span class="mq-card"><i></i>Glaziers</span><span class="mq-card"><i></i>Chiropractors</span><span class="mq-card"><i></i>Podiatrists</span><span class="mq-card"><i></i>Solar installers</span>
-          <span class="mq-card"><i></i>Painters</span><span class="mq-card"><i></i>Concreters</span><span class="mq-card"><i></i>Tilers</span><span class="mq-card"><i></i>Arborists</span><span class="mq-card"><i></i>Cleaning companies</span><span class="mq-card"><i></i>Glaziers</span><span class="mq-card"><i></i>Chiropractors</span><span class="mq-card"><i></i>Podiatrists</span><span class="mq-card"><i></i>Solar installers</span>
-        </div>
       </div>
     </div>
   </div>
