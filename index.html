@@ -154,7 +154,7 @@ section{padding:76px 0}
   content:"";position:absolute;left:0;right:0;bottom:0;height:3px;
   background:linear-gradient(90deg,#B84A02,#DB5F05 50%,#F0801F);
   transform:scaleX(0);transform-origin:left center;
-  transition:transform .9s cubic-bezier(.4,0,.2,1);
+  transition:transform 1.8s cubic-bezier(.4,0,.2,1);
 }
 .founder-stats .stat:hover::after{transform:scaleX(1)}
 @media (prefers-reduced-motion:reduce){.founder-stats .stat::after{transition:none}}
@@ -543,7 +543,7 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
   content:"";position:absolute;left:0;right:0;bottom:0;height:3px;
   background:linear-gradient(90deg,#B84A02,#DB5F05 50%,#F0801F);
   transform:scaleX(0);transform-origin:left center;
-  transition:transform .9s cubic-bezier(.4,0,.2,1);
+  transition:transform 1.8s cubic-bezier(.4,0,.2,1);
 }
 /* the six steps read as one loop: row one left to right, down the
    right edge, then row two right to left. Dotted path drawn by JS;
@@ -1589,7 +1589,7 @@ footer .brand{color:#fff}
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     cards.forEach(c => c.classList.add('lit'));
   } else {
-    const WIPE = 900, GAP = 750, DONE = 2600;
+    const WIPE = 1800, GAP = 1500, DONE = 3000;
     let i = 0;
     const step = () => {
       if (i < cards.length) {
