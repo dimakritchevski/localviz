@@ -492,8 +492,8 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
 #how{padding-top:28px}
 /* client voice and the case study are both white now - halve the gap
    between them, same treatment as results into how-it-works */
-#voice{padding-bottom:28px}
-#case{padding-top:28px}
+#case{padding-bottom:28px}
+#voice{padding-top:28px}
 /* the back half of the page is all white - stacked 76px paddings
    read as dead air, so each seam gets trimmed */
 #gameplan{padding:72px 0}
@@ -679,13 +679,14 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
 .gtee-badge svg{width:13px;height:13px;fill:none;stroke:#A64A05;stroke-width:2}
 
 /* ── Founder ──────────────────────────────────────────────────── */
-.founder-inner{display:grid;grid-template-columns:.78fr 1.22fr;gap:52px;align-items:center}
+.founder-inner{display:grid;grid-template-columns:.58fr 1.42fr;gap:52px;align-items:center}
 .founder-inner .sec-head{margin-bottom:0}
 .founder-photo{
-  aspect-ratio:4/5;border-radius:14px;overflow:hidden;
-  background:var(--bg-alt);border:1px dashed var(--line-2);
+  border-radius:14px;overflow:hidden;
+  background:var(--bg-alt);border:1px solid var(--line-2);
   display:flex;flex-direction:column;
 }
+.founder-photo img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
 .founder-photo .ph{
   flex:1;display:grid;place-items:center;text-align:center;padding:24px;
   font-size:11px;letter-spacing:.06em;color:var(--muted);line-height:1.8;text-transform:uppercase;
@@ -799,7 +800,7 @@ footer .brand{color:#fff}
 @media (max-width:1080px){
   .hero-inner,.who-inner,.case-inner,.founder-inner,.voice-inner,.get-inner,.gtee-inner{grid-template-columns:1fr;gap:44px}
   .shot{max-width:280px}
-  .founder-photo{aspect-ratio:16/9}
+  .founder-photo{max-width:340px}
   .head-row{flex-direction:column;align-items:flex-start;gap:24px}
   .head-row .btn{margin-top:0}
   .lede,.microcopy{max-width:640px}
@@ -1115,7 +1116,7 @@ footer .brand{color:#fff}
 <section class="band-dark">
   <div class="wrap founder-inner">
     <figure class="founder-photo">
-      <span class="ph">PHOTO<br>Dimitri working - a map grid<br>on screen, not a studio headshot</span>
+      <img src="images/profile.png" alt="Dimitri Kritchevski, founder of LocalViz">
       <figcaption class="founder-cap">
         <b>Dimitri Kritchevski</b>
         <span>Founder · Melbourne</span>
@@ -1132,6 +1133,36 @@ footer .brand{color:#fff}
         <div class="stat"><b data-count="100" data-suffix="k+">100k+</b><span>Leads and calls generated</span></div>
         <div class="stat"><b data-count="50" data-prefix="$" data-suffix="m+">$50m+</b><span>Client revenue added</span></div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FLAGSHIP CASE STUDY ═══════════════════════════════════════
+     PLACEHOLDER. One story told properly beats three told shallowly.
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="case">
+  <div class="wrap case-inner">
+    <div class="sec-head">
+      <span class="eyebrow">Case study · Josh Smith Legal</span>
+      <h2>From Invisible to Top 3 in the Melbourne CBD</h2>
+      <p>Criminal law in the Melbourne CBD is as contested as local search gets: dozens of established firms fighting over three spots on the map. [One or two lines: where Josh started, what we fixed, and what it did to his enquiries.]</p>
+      <div class="stat-row">
+        <div class="stat"><b>[#14] → [#3]</b><span>Melbourne CBD</span></div>
+        <div class="stat"><b>[+N%]</b><span>Enquiries from Google</span></div>
+        <div class="stat"><b>[N] months</b><span>To the map pack</span></div>
+      </div>
+      <div class="cta-row"><a href="#apply" class="btn btn-cta btn-lg">Get my free audit &amp; proposal</a></div>
+    </div>
+
+    <div class="case-side">
+      <div class="case-media">
+        <span class="ph">MEDIA · Before / after map grid for "criminal lawyer melbourne", or a GBP performance screenshot</span>
+        <span class="play" aria-hidden="true"></span>
+      </div>
+      <blockquote class="msg">
+        <p>[Paste what Josh actually said - unedited, typos and all. A screenshot of the email or text is stronger still. This is the least polished thing on the page, and that is exactly why it works.]</p>
+        <cite>JOSH SMITH · JOSH SMITH LEGAL · MELBOURNE</cite>
+      </blockquote>
     </div>
   </div>
 </section>
@@ -1165,36 +1196,6 @@ footer .brand{color:#fff}
         <p class="pull">&ldquo;[Paste the client's own words here - the sentence that made you want to build this section. Keep their phrasing, typos and all.]&rdquo;</p>
         <p class="pull-cite">&mdash; [Name] · <b>Capstone Tiling</b> · Brighton</p>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ FLAGSHIP CASE STUDY ═══════════════════════════════════════
-     PLACEHOLDER. One story told properly beats three told shallowly.
-     ═══════════════════════════════════════════════════════════════ -->
-<section id="case">
-  <div class="wrap case-inner">
-    <div class="sec-head">
-      <span class="eyebrow">Case study · Josh Smith Legal</span>
-      <h2>From Invisible to Top 3 in the Melbourne CBD</h2>
-      <p>Criminal law in the Melbourne CBD is as contested as local search gets: dozens of established firms fighting over three spots on the map. [One or two lines: where Josh started, what we fixed, and what it did to his enquiries.]</p>
-      <div class="stat-row">
-        <div class="stat"><b>[#14] → [#3]</b><span>Melbourne CBD</span></div>
-        <div class="stat"><b>[+N%]</b><span>Enquiries from Google</span></div>
-        <div class="stat"><b>[N] months</b><span>To the map pack</span></div>
-      </div>
-      <div class="cta-row"><a href="#apply" class="btn btn-cta btn-lg">Get my free audit &amp; proposal</a></div>
-    </div>
-
-    <div class="case-side">
-      <div class="case-media">
-        <span class="ph">MEDIA · Before / after map grid for "criminal lawyer melbourne", or a GBP performance screenshot</span>
-        <span class="play" aria-hidden="true"></span>
-      </div>
-      <blockquote class="msg">
-        <p>[Paste what Josh actually said - unedited, typos and all. A screenshot of the email or text is stronger still. This is the least polished thing on the page, and that is exactly why it works.]</p>
-        <cite>JOSH SMITH · JOSH SMITH LEGAL · MELBOURNE</cite>
-      </blockquote>
     </div>
   </div>
 </section>

@@ -3,3 +3,5 @@
 !index.html
 !free-audit.html
 !_redirects
+!images
+!images/**
