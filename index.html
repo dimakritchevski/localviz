@@ -272,6 +272,10 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
 .lp-stars{display:block;font-size:12.5px;color:var(--body);margin-top:3px}
 .lp-stars i{font-style:normal;color:#F0B428;letter-spacing:1px}
 .lp-meta{display:block;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);margin-top:3px}
+/* anonymised competitor rows - names and details become soft pills,
+   only "Your Business" stays readable */
+.lp-bar{display:inline-block;height:11px;border-radius:999px;background:#DBE1F1;vertical-align:middle}
+.lp-bar.sm{height:7px;margin-right:6px}
 .lp-call{
   flex:none;display:inline-flex;align-items:center;gap:6px;
   font-size:12.5px;font-weight:600;color:var(--accent);
@@ -1382,20 +1386,24 @@ footer .brand{color:#fff}
 
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ROWH = 78;
+  // competitors are anonymised - bar widths stand in for name and meta
   const BIZ = [
-    { n: 'Apex Plumbing Co',     r: '4.7', s: 4, c: 89  },
-    { n: 'Rapid Flow Plumbing',  r: '4.5', s: 4, c: 203 },
-    { n: 'Northside Plumbers',   r: '4.4', s: 4, c: 61  },
-    { n: 'Your Business',        r: '4.9', s: 5, c: 167, you: true },
+    { r: '4.7', s: 4, c: 89,  w: [104, 40], mw: [76, 44] },
+    { r: '4.5', s: 4, c: 203, w: [122, 34], mw: [64, 52] },
+    { r: '4.4', s: 4, c: 61,  w: [96, 52],  mw: [82, 38] },
+    { n: 'Your Business', r: '4.9', s: 5, c: 167, you: true },
   ];
 
+  const bar = (wid, cls) => '<span class="lp-bar' + (cls || '') + '" style="width:' + wid + 'px"></span>';
   const rows = BIZ.map(b => {
     const el = document.createElement('div');
     el.className = 'lp-row' + (b.you ? ' you' : '');
+    const name = b.you ? b.n + '<i class="lp-you">You</i>' : bar(b.w[0]) + bar(b.w[1]);
+    const meta = b.you ? 'Plumber · Open 24 hours' : bar(b.mw[0], ' sm') + bar(b.mw[1], ' sm');
     el.innerHTML =
-      '<div class="lp-biz"><b>' + b.n + (b.you ? '<i class="lp-you">You</i>' : '') + '</b>' +
+      '<div class="lp-biz"><b>' + name + '</b>' +
       '<span class="lp-stars">' + b.r + ' <i>' + '★'.repeat(b.s) + '</i> (<span class="lp-c">' + b.c + '</span>)</span>' +
-      '<span class="lp-meta">Plumber · Open 24 hours</span></div>' +
+      '<span class="lp-meta">' + meta + '</span></div>' +
       '<span class="lp-call"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.5 2.1L8.1 9.9a16 16 0 006 6l1.2-1.2a2 2 0 012.1-.5c.9.3 1.9.6 2.9.7a2 2 0 011.7 2z"/></svg>Call</span>';
     list.appendChild(el);
     return el;
