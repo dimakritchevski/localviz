@@ -357,7 +357,7 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
 .node{position:relative;z-index:1;aspect-ratio:1;display:grid;place-items:center}
 .n-bad{--pin:var(--lose);--pin-ink:#3B0A0F}
 .n-mid{--pin:var(--warn);--pin-ink:#3A2A05}
-.n-good{--pin:var(--win);--pin-ink:#052A1B}
+.n-good{--pin:var(--win);--pin-ink:#fff}
 .pin{
   position:relative;width:74%;aspect-ratio:1;border-radius:50%;
   display:grid;place-items:center;transform:translateY(-8%);
@@ -441,7 +441,7 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
 .ba[data-ba="2"] .mapgrid{background-image:url('images/map-abrecycling.jpg')}
 /* outside the top three: a quiet dot instead of a coloured pin */
 .dot-blank{width:7px;height:7px;border-radius:50%;background:rgba(11,21,36,.22);box-shadow:0 0 0 2px rgba(255,255,255,.7)}
-.ba .pin{font-size:9.5px}
+.ba .pin{font-size:11.5px;font-weight:700}
 /* legend above the result cards */
 .grid-key{display:flex;align-items:center;gap:10px;margin:-22px 0 26px;font-size:13.5px;color:var(--body)}
 .grid-key .key-node{width:24px;aspect-ratio:1;display:grid;place-items:center;flex:none}
@@ -1027,7 +1027,7 @@ footer .brand{color:#fff}
         <div class="rcard-metric"><span class="from">[9]</span> <span class="from">→</span> <span class="to">[34]</span></div>
         <p class="rcard-cap">Calls a month from Google</p>
         <p class="rcard-story">[Was invisible outside his own suburb. Now top three across [8] of the [9] suburbs he services, and he's hired two more guys to keep up.]</p>
-        <div class="rcard-foot"><span>Results in [6] months</span><span class="rcard-chip">Tiling · Melbourne</span></div>
+        <div class="rcard-foot"><span>Results in 6 months</span><span class="rcard-chip">Tiling · Melbourne</span></div>
       </div>
 
       <div class="rcard tbd">
@@ -1039,7 +1039,7 @@ footer .brand{color:#fff}
         <div class="rcard-metric"><span class="from">[1]</span> <span class="from">→</span> <span class="to">[7] of [9]</span></div>
         <p class="rcard-cap">Suburbs ranked in the top three</p>
         <p class="rcard-story">[New patients used to come from one suburb. Now the books are full across the whole east side, and they've added a second hygienist.]</p>
-        <div class="rcard-foot"><span>Results in [4] months</span><span class="rcard-chip">Legal · Gold Coast</span></div>
+        <div class="rcard-foot"><span>Results in 5 months</span><span class="rcard-chip">Legal · Gold Coast</span></div>
       </div>
 
       <div class="rcard tbd">
@@ -1051,7 +1051,7 @@ footer .brand{color:#fff}
         <div class="rcard-metric"><span class="from">[21]</span> <span class="from">→</span> <span class="to">[64]</span></div>
         <p class="rcard-cap">Enquiries a month from Google</p>
         <p class="rcard-story">[Used to rely on referrals alone. Now turns away work in tax season, and has put on a second accountant.]</p>
-        <div class="rcard-foot"><span>Results in [5] months</span><span class="rcard-chip">Recycling · Melbourne</span></div>
+        <div class="rcard-foot"><span>Results in 4 months</span><span class="rcard-chip">Recycling · Melbourne</span></div>
       </div>
     </div>
 
@@ -1658,7 +1658,8 @@ footer .brand{color:#fff}
   ];
 
   const HOME = 17;    // centre of the 7x5 grid
-  const MONTHS = 6;
+  const MONTHS = 6;   // full programme scale the easing runs on
+  const CUTOFF = [6, 5, 4];  // where each card's story stops (per data-ba)
   const TICK = 1300;  // ms per month
   const HOLD = 3400;  // pause on the finished grid before looping
 
@@ -1674,6 +1675,7 @@ footer .brand{color:#fff}
   document.querySelectorAll('.ba').forEach((el, ci) => {
     const [start, end] = BA_DATA[+el.dataset.ba] || BA_DATA[0];
     const water = WATER[+el.dataset.ba] || WATER[2];
+    const months = CUTOFF[+el.dataset.ba] || MONTHS;
 
     const head = document.createElement('div');
     head.className = 'tl-head';
@@ -1682,7 +1684,7 @@ footer .brand{color:#fff}
     const track = document.createElement('span');
     track.className = 'tl-track';
     const segs = [];
-    for (let k = 0; k < MONTHS; k++) {
+    for (let k = 0; k < months; k++) {
       const s = document.createElement('i');
       track.appendChild(s);
       segs.push(s);
@@ -1705,7 +1707,7 @@ footer .brand{color:#fff}
       const t = m / MONTHS;
       cells.forEach((c, i) => {
         if (c.water) return;
-        const r = m === 0 ? start[i] : m === MONTHS ? end[i] : rankAt(start[i], end[i], i, t);
+        const r = m === 0 ? start[i] : rankAt(start[i], end[i], i, t);
         const good = r <= 3, was = c.rank !== null && c.rank <= 3;
         if (c.rank !== null && good === was && (!good || r === c.rank)) { c.rank = r; return; }
         c.rank = r;
@@ -1716,14 +1718,14 @@ footer .brand{color:#fff}
       });
     };
 
-    if (still) { paint(MONTHS, false); return; }
+    if (still) { paint(months, false); return; }
 
     paint(0, false);
     let m = 0, timer = null;
     const step = () => {
       m += 1;
       paint(m, true);
-      timer = m >= MONTHS
+      timer = m >= months
         ? setTimeout(() => { m = 0; paint(0, false); timer = setTimeout(step, TICK); }, HOLD)
         : setTimeout(step, TICK);
     };
