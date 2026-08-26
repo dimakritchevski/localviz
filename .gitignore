@@ -2,6 +2,9 @@
 !.gitignore
 !index.html
 !free-audit.html
+!privacy.html
+!terms.html
 !_redirects
+!CNAME
 !images
 !images/**
