@@ -238,7 +238,7 @@ h1 em{
   .tb-track{animation:none}
   .trustbar-viewport{overflow-x:auto}
 }
-.hero-inner{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center}
+.hero-inner{display:grid;grid-template-columns:.95fr 1.05fr;gap:40px;align-items:center}
 h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-weight:700;margin-bottom:20px}
 .lede{font-size:18px;line-height:1.6;color:var(--body);max-width:520px;margin-bottom:26px}
 
@@ -282,6 +282,8 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
 }
 .lp-row.you{background:#F2FAF5}
 .lp-biz b{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+/* the you-row label is long - let its badge and chip wrap if space runs out */
+.lp-row.you .lp-biz b{flex-wrap:wrap;row-gap:4px}
 .lp-you{
   font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
   background:var(--win-dk);color:#fff;border-radius:4px;padding:2px 6px;
@@ -854,6 +856,7 @@ footer .brand{color:#fff}
   section{padding:56px 0}
   .hero{padding:48px 0}
   .g3,.g4,.get-roles,.creds{grid-template-columns:1fr}
+  .lp-row.you .lp-biz b{font-size:13px}
   .minicta{flex-direction:column;align-items:flex-start;gap:20px;padding:22px}
   .minicta .btn{width:100%}
   .foot-top{grid-template-columns:1fr;gap:32px}
@@ -1485,7 +1488,7 @@ footer .brand{color:#fff}
     { r: '4.7', s: 4, c: 89,  w: [104, 40], mw: [76, 44] },
     { r: '4.5', s: 4, c: 203, w: [122, 34], mw: [64, 52] },
     { r: '4.4', s: 4, c: 61,  w: [96, 52],  mw: [82, 38] },
-    { n: 'Your Business', r: '4.9', s: 5, c: 167, mw: [72, 48], you: true },
+    { n: 'Your Google Business Profile', r: '4.9', s: 5, c: 167, mw: [72, 48], you: true },
   ];
 
   const bar = (wid, cls) => '<span class="lp-bar' + (cls || '') + '" style="width:' + wid + 'px"></span>';
