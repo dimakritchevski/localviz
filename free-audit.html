@@ -362,17 +362,21 @@ footer .brand{color:#fff}
         <div class="qdots" aria-hidden="true"><span class="qdot on"></span><span class="qdot"></span></div>
 
         <div class="qstep" data-step="1">
-          <label class="qlabel" for="website">What's your website?</label>
-          <input id="website" name="website" type="text" inputmode="url" placeholder="yourbusiness.com.au" autocomplete="url" required>
-          <p class="qhint">That's all we need to start. We'll find your Google profile, categories and service area from there.</p>
+          <label class="qlabel" for="fname">First, a bit about you</label>
+          <div class="qfields">
+            <input id="fname" name="fname" type="text" placeholder="First name" autocomplete="given-name" required>
+            <input id="lname" name="lname" type="text" placeholder="Last name" autocomplete="family-name" required>
+            <input id="bizname" name="bizname" type="text" placeholder="Business name" autocomplete="organization" required>
+          </div>
           <button type="button" class="btn btn-cta btn-lg qnext">Next</button>
         </div>
 
         <div class="qstep" data-step="2" hidden>
-          <label class="qlabel" for="fname">Where should we send it?</label>
+          <label class="qlabel" for="website">Your website and contact details</label>
           <div class="qfields">
-            <input id="fname" name="fname" type="text" placeholder="First name" autocomplete="given-name" required>
-            <input id="email" name="email" type="email" placeholder="Business email" autocomplete="email" required>
+            <input id="website" name="website" type="text" inputmode="url" placeholder="yourbusiness.com.au" autocomplete="url" required>
+            <input id="email" name="email" type="email" placeholder="Email address" autocomplete="email" required>
+            <input id="mobile" name="mobile" type="tel" inputmode="tel" placeholder="Mobile number" autocomplete="tel" required>
             <textarea id="notes" name="notes" placeholder="Anything we should know? (optional)"></textarea>
           </div>
           <button type="submit" class="btn btn-cta btn-lg">Send me my free audit &amp; proposal</button>
@@ -459,8 +463,6 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   if (!form) return;
   const steps = [...form.querySelectorAll('.qstep')];
   const dots  = [...form.querySelectorAll('.qdot')];
-  const site  = form.querySelector('#website');
-
   const go = i => {
     steps.forEach((s, n) => s.hidden = n !== i);
     dots.forEach((d, n) => d.classList.toggle('on', n <= i));
@@ -469,14 +471,15 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   };
 
   form.querySelector('.qnext').addEventListener('click', () => {
-    if (!site.value.trim()) { site.focus(); return; }
+    const missing = [...steps[0].querySelectorAll('input[required]')].find(f => !f.value.trim());
+    if (missing) { missing.focus(); return; }
     go(1);
   });
   form.querySelector('.qback').addEventListener('click', () => go(0));
 
-  site.addEventListener('keydown', e => {
+  steps[0].querySelectorAll('input').forEach(f => f.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); form.querySelector('.qnext').click(); }
-  });
+  }));
 })();
 </script>
 
