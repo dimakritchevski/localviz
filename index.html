@@ -186,17 +186,13 @@ h1 em{
 .sec-head.centred{margin-left:auto;margin-right:auto;text-align:center}
 
 /* ── Hero ─────────────────────────────────────────────────────── */
-/* light hero: soft blue-into-white gradient with the map grid in ink,
-   the same motif as the grey bands. The dark trust bar below anchors it. */
-.hero{
-  padding:72px 0 68px;
-  background-color:#fff;
-  background-image:
-    linear-gradient(rgba(11,21,36,.04) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(11,21,36,.04) 1px,transparent 1px),
-    linear-gradient(180deg,#EAF0FA 0%,rgba(255,255,255,0) 78%);
-  background-size:44px 44px,44px 44px,100% 100%;
-}
+/* dark hero: white header above, navy banner below. The white
+   mockup card pops off it. */
+.hero{padding:72px 0 68px}
+.band-dark h1{color:#fff}
+.band-dark .lede{color:#C3CCE7}
+.hero .microcopy{color:#9BA7CC}
+.hero .microcopy strong{color:#fff}
 .hero-badge{
   display:inline-flex;align-items:center;gap:8px;margin-bottom:20px;
   font-size:12.5px;font-weight:600;letter-spacing:.02em;color:var(--body);
@@ -261,7 +257,7 @@ h1{font-size:clamp(34px,4vw,50px);line-height:1.1;letter-spacing:-.025em;font-we
 /* ── Hero mockup - a local search with the client rising to #1 ── */
 .lp-card{
   background:var(--bg);border-radius:16px;overflow:hidden;position:relative;
-  box-shadow:0 2px 4px rgba(11,21,36,.12),0 26px 60px -20px rgba(11,21,36,.3);
+  box-shadow:0 2px 4px rgba(11,21,36,.15),0 26px 60px -20px rgba(0,0,0,.55);
 }
 .lp-search{
   display:flex;align-items:center;gap:10px;padding:14px 16px;
@@ -924,7 +920,7 @@ footer .brand{color:#fff}
 </header>
 
 <!-- ══ HERO ══════════════════════════════════════════════════════ -->
-<section class="hero">
+<section class="hero band-dark">
   <div class="wrap hero-inner">
     <div>
       <h1>Own Google Maps, Across Your <em>Entire</em> Service Area</h1>
